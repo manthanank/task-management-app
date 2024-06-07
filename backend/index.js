@@ -26,6 +26,10 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/tasks', require('./routes/task.routes'));
 
+app.get('/api', (req, res) => {
+    res.json({ message: 'Welcome to the Task Management API' });
+});
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
