@@ -13,7 +13,7 @@ exports.createTask = async (req, res) => {
       user: req.user._id,
     });
     await newTask.save();
-    successResponse(res, 201, 'Task created successfully', newTask);
+    successResponse(res, 201, 'Task created successfully');
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -54,7 +54,7 @@ exports.updateTask = async (req, res) => {
     if (!updatedTask) {
       return errorResponse(res, 404, 'Task not found');
     }
-    successResponse(res, 200, 'Task updated successfully', updatedTask);
+    successResponse(res, 200, 'Task updated successfully');
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -67,7 +67,7 @@ exports.deleteTask = async (req, res) => {
     if (!deletedTask) {
       return errorResponse(res, 404, 'Task not found');
     }
-    successResponse(res, 200, 'Task deleted successfully', deletedTask);
+    successResponse(res, 200, 'Task deleted successfully');
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
