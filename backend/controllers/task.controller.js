@@ -4,13 +4,13 @@ const { successResponse, errorResponse } = require('../utils/response');
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, deadline, priority } = req.body;
+    const { title, description, deadline, priority, userId } = req.body;
     const newTask = new Task({
       title,
       description,
       deadline,
       priority,
-      user: req.user._id,
+      user: userId,
     });
     await newTask.save();
     successResponse(res, 201, 'Task created successfully');

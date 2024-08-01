@@ -1,0 +1,41 @@
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Create Task</h2>
+    <form (ngSubmit)="createTask()">
+        <div class="mb-4">
+            <label class="block text-gray-700">Title</label>
+            <input type="text" [(ngModel)]="title" name="title" required
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea [(ngModel)]="description" name="description"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Deadline</label>
+            <input type="date" [(ngModel)]="deadline" name="deadline" [min]="minDate"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Priority</label>
+            <select [(ngModel)]="priority" name="priority"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">Users</label>
+            <select [(ngModel)]="userId" name="user"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                @for (user of users; track $index) {
+                    <option [value]="user._id">{{ user.email }}</option>
+                }
+            </select>
+        </div>
+        <button type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Create
+            Task</button>
+    </form>
+</div>

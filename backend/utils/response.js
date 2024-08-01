@@ -17,7 +17,7 @@ const errorResponse = (res, status, message) => {
 };
 
 const generateToken = (user) => {
-    return jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7 days' });
+    return jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
 module.exports = { successResponse, errorResponse, generateToken };

@@ -1,0 +1,58 @@
+<div class="flex justify-center items-center p-4">
+    <form class="w-full max-w-sm" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <h2 class="text-center text-2xl mb-4">Sign Up</h2>
+        @if (error()) {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+            <p>{{ error() }}</p>
+        </div>
+        }
+        <div class="mb-4">
+            <label for="email" class="block text-sm font-bold mb-2">Email</label>
+            <div class="relative">
+                <input id="email" type="text" class="w-full px-3 py-2 border rounded" formControlName="email"
+                    name="email">
+            </div>
+            <div class="text-sm mt-1">
+                @if (registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty ||
+                registerForm.get('email')?.touched)) {
+                <div class="text-red-500 text-sm mt-1">
+                    @if (registerForm.get('email')?.errors?.['required']) {
+                    <p>Email is required</p>
+                    }
+                    @if (registerForm.get('email')?.errors?.['email']) {
+                    <p>Invalid email format</p>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-bold mb-2">Password</label>
+            <div class="relative">
+                <input [type]="showPassword() ? 'text' : 'password'" class="w-full px-3 py-2 border rounded"
+                    formControlName="password" name="password">
+                <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                    (click)="togglePasswordVisibility()">
+                    <span [ngClass]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></span>
+                </button>
+            </div>
+            <div class="text-sm mt-1">
+                @if (registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty ||
+                registerForm.get('password')?.touched)) {
+                <div class="text-red-500 text-sm mt-1">
+                    @if (registerForm.get('password')?.errors?.['required']) {
+                    <p>Password is required</p>
+                    }
+                    @if (registerForm.get('password')?.errors?.['minlength']) {
+                    <p>Password must be at least 6 characters</p>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Sign Up</button>
+            <a routerLink="/login" class="text-blue-500">Login</a>
+        </div>
+    </form>
+</div>

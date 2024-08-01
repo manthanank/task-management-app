@@ -2,22 +2,23 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const { errorResponse } = require('../utils/response');
 
-const authMiddleware = async (req, res, next) => {
+const auth = (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = decoded;
+  next();
+};
+
+const isAdmin = async (req, res, next) => {
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ _id: decoded._id });
-
-    if (!user) {
-      throw new Error();
+    const user = await User.findById(req.user._id);
+    if (user.role !== 'admin') {
+      return res.status(403).send({ error: 'Access denied' });
     }
-
-    req.token = token;
-    req.user = user;
     next();
   } catch (error) {
-    errorResponse(res, 401, 'Please authenticate');
+    return errorResponse(res, error);
   }
 };
 
-module.exports = authMiddleware;
+module.exports = { auth, isAdmin };

@@ -1,0 +1,19 @@
+<div class="container mx-auto p-2">
+    <button (click)="goBack()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-4">
+        Go Back
+    </button>
+</div>
+<div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h2 class="text-3xl font-bold mb-4 text-gray-800">{{ task?.title }}</h2>
+    <p class="text-gray-600 mb-2">{{ task?.description }}</p>
+    <p class="text-gray-600 mb-2">Deadline: {{ task?.deadline | date }}</p>
+    <p class="text-gray-600 mb-2">Priority: {{ task?.priority }}</p>
+    <p class="text-gray-600 mb-4">Completed: {{ task?.completed ? 'Yes' : 'No' }}</p>
+    <button (click)="completeTask()"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full mb-4">
+        Complete Task
+    </button>
+    @if (isCompleted) {
+    <p class="text-green-500 font-bold">This task is already completed.</p>
+    }
+</div>
