@@ -51,7 +51,7 @@
             </div>
         </div>
         <div class="flex items-center justify-between">
-            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Sign Up</button>
+            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded" [disabled]="registerForm.invalid" [ngClass]="{ 'opacity-50 cursor-not-allowed': registerForm.invalid }">Sign Up</button>
             <a routerLink="/login" class="text-blue-500">Login</a>
         </div>
     </form>

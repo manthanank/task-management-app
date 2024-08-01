@@ -16,6 +16,20 @@ export const routes: Routes = [
       import('./auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent
+      ),
+  },
+  {
+    path: 'reset-password/:token',
+    loadComponent: () =>
+      import('./auth/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent
+      ),
+  },
+  {
     path: 'tasks',
     loadComponent: () =>
       import('./components/task-list/task-list.component').then(

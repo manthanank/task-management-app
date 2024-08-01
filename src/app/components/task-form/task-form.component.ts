@@ -1,21 +1,25 @@
 import { Component, inject } from '@angular/core';
 import { TaskService } from '../../services/task.service';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../core/models/users.model';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [ReactiveFormsModule, NgClass],
   templateUrl: './task-form.component.html',
   styleUrl: './task-form.component.scss',
 })
 export class TaskFormComponent {
-  title: string = '';
-  description: string = '';
-  deadline: string = new Date().toISOString().split('T')[0];
+  taskForm: FormGroup;
   priority: string = 'Medium';
   userId: string = '';
   users: User[] = [];
@@ -24,8 +28,17 @@ export class TaskFormComponent {
   router = inject(Router);
   taskService = inject(TaskService);
   auth = inject(AuthService);
+  fb = inject(FormBuilder);
 
-  constructor() {}
+  constructor() {
+    this.taskForm = this.fb.group({
+      title: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(3)]],
+      deadline: [this.minDate, Validators.required],
+      priority: ['', Validators.required],
+      userId: ['', Validators.required],
+    });
+  }
 
   ngOnInit() {
     this.getUsers();
@@ -43,23 +56,16 @@ export class TaskFormComponent {
   }
 
   createTask() {
-    const task = {
-      title: this.title,
-      description: this.description,
-      deadline: this.deadline,
-      priority: this.priority,
-      userId: this.userId,
-    };
-
-    if (
-      !task.title ||
-      !task.description ||
-      !task.deadline ||
-      !task.priority ||
-      !task.userId
-    ) {
+    if (this.taskForm.invalid) {
       return;
     }
+    const task = {
+      title: this.taskForm.value.title,
+      description: this.taskForm.value.description,
+      deadline: this.taskForm.value.deadline,
+      priority: this.taskForm.value.priority,
+      userId: this.taskForm.value.userId,
+    };
 
     this.taskService.createTask(task).subscribe({
       next: () => {
