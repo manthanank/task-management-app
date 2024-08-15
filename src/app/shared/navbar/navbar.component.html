@@ -1,14 +1,11 @@
 <nav class="bg-gray-800 p-4">
     <div class="container mx-auto flex justify-between items-center">
         <div class="text-white text-lg">
-            <a routerLink="/tasks" class="text-white no-underline mr-4 hover:underline">Task Management App</a>
+            <a routerLink="" class="text-white no-underline mr-4 hover:underline">Task Management App</a>
         </div>
         <div>
             @if (isLoggedIn() && isAdmin()) {
             <a routerLink="tasks/new" class="text-white no-underline mr-4 hover:underline">Add Task</a>
-            }
-            @if (!isLoggedIn()) {
-            <a routerLink="/login" class="text-white no-underline mr-4 hover:underline">Login</a>
             }
             @if (isLoggedIn()) {
             <button (click)="logout()"

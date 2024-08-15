@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Task } from '../core/models/tasks.models';
+import { Task, Tasks } from '../core/models/tasks.models';
 
 @Injectable({
   providedIn: 'root',
@@ -16,12 +16,12 @@ export class TaskService {
     return this.http.post<Task>(this.apiUrl, task);
   }
 
-  getAllTasks(): Observable<Task> {
-    return this.http.get<Task>(this.apiUrl);
+  getAllTasks(): Observable<Tasks> {
+    return this.http.get<Tasks>(this.apiUrl);
   }
 
-  getTaskById(id: string): Observable<Task> {
-    return this.http.get<Task>(`${this.apiUrl}/${id}`);
+  getTaskById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   updateTask(id: string, task: any): Observable<Task> {

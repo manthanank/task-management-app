@@ -17,6 +17,10 @@ export class AuthService {
 
   constructor() {}
 
+  redirectToTasks() {
+    this.router.navigate(['/tasks']);
+  }
+
   register(user: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user).pipe(
       tap((response: any) => {
