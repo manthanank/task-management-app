@@ -61,7 +61,7 @@ export class AuthService {
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
     }
-    this.router.navigate(['/login']);
+    // this.router.navigate(['/login']);
   }
 
   forgotPassword(email: string): Observable<any> {
