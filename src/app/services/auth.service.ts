@@ -42,22 +42,22 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('token');
+    return !!sessionStorage.getItem('token');
   }
 
   isAdmin(): boolean {
-    const role = localStorage.getItem('role');
+    const role = sessionStorage.getItem('role');
     return role === 'admin';
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token');
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenExpirationDate');
-    localStorage.removeItem('role');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('tokenExpirationDate');
+    sessionStorage.removeItem('role');
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
     }
@@ -76,16 +76,16 @@ export class AuthService {
 
   private handleAuthentication(token: string, expiresIn: number, role: string) {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
-    localStorage.setItem('token', token);
-    localStorage.setItem('tokenExpirationDate', expirationDate.toISOString());
-    localStorage.setItem('role', role);
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('tokenExpirationDate', expirationDate.toISOString());
+    sessionStorage.setItem('role', role);
     this.autoLogout(expiresIn * 1000);
   }
 
   autoLogin() {
     const token = this.getToken();
     const expirationDate = new Date(
-      localStorage.getItem('tokenExpirationDate') || ''
+      sessionStorage.getItem('tokenExpirationDate') || ''
     );
     if (!token || expirationDate <= new Date()) {
       this.logout();
