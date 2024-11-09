@@ -1,5 +1,5 @@
-const Task = require('../models/task.model');
-const { successResponse, errorResponse } = require('../utils/response');
+const Task = require("../models/task.model");
+const { successResponse, errorResponse } = require("../utils/response");
 
 // Create a new task
 exports.createTask = async (req, res) => {
@@ -13,7 +13,7 @@ exports.createTask = async (req, res) => {
       user: userId,
     });
     await newTask.save();
-    successResponse(res, 201, 'Task created successfully');
+    successResponse(res, 201, "Task created successfully");
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -22,8 +22,19 @@ exports.createTask = async (req, res) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find();
-    successResponse(res, 200, 'Tasks retrieved successfully', tasks);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const tasks = await Task.find().skip(skip).limit(limit);
+    const totalTasks = await Task.countDocuments();
+
+    successResponse(res, 200, "Tasks retrieved successfully", {
+      tasks,
+      totalTasks,
+      totalPages: Math.ceil(totalTasks / limit),
+      currentPage: page,
+    });
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -32,8 +43,21 @@ exports.getAllTasks = async (req, res) => {
 // Get all tasks for a user
 exports.getAllTasksForUser = async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user._id });
-    successResponse(res, 200, 'Tasks retrieved successfully', tasks);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const tasks = await Task.find({ user: req.user._id })
+      .skip(skip)
+      .limit(limit);
+    const totalTasks = await Task.countDocuments({ user: req.user._id });
+
+    successResponse(res, 200, "Tasks retrieved successfully", {
+      tasks,
+      totalTasks,
+      totalPages: Math.ceil(totalTasks / limit),
+      currentPage: page,
+    });
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -44,9 +68,9 @@ exports.getTaskById = async (req, res) => {
   try {
     const task = await Task.findOne({ _id: req.params.id, user: req.user._id });
     if (!task) {
-      return errorResponse(res, 404, 'Task not found');
+      return errorResponse(res, 404, "Task not found");
     }
-    successResponse(res, 200, 'Task retrieved successfully', task);
+    successResponse(res, 200, "Task retrieved successfully", task);
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -62,9 +86,9 @@ exports.updateTask = async (req, res) => {
       { new: true }
     );
     if (!updatedTask) {
-      return errorResponse(res, 404, 'Task not found');
+      return errorResponse(res, 404, "Task not found");
     }
-    successResponse(res, 200, 'Task updated successfully');
+    successResponse(res, 200, "Task updated successfully");
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -73,11 +97,14 @@ exports.updateTask = async (req, res) => {
 // Delete a task
 exports.deleteTask = async (req, res) => {
   try {
-    const deletedTask = await Task.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    const deletedTask = await Task.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user._id,
+    });
     if (!deletedTask) {
-      return errorResponse(res, 404, 'Task not found');
+      return errorResponse(res, 404, "Task not found");
     }
-    successResponse(res, 200, 'Task deleted successfully');
+    successResponse(res, 200, "Task deleted successfully");
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
