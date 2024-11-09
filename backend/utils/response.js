@@ -1,23 +1,19 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
-const successResponse = (res, status, message, data) => {
-    res.status(status).json({
-      status: 'success',
-      message,
-      data,
-    });
+const createResponse = (res, status, message, data = null) => {
+  const response = { status: status === 200 ? "success" : "error", message };
+  if (data) response.data = data;
+  res.status(status).json(response);
 };
 
-const errorResponse = (res, status, message) => {
-    res.status(status).json({
-      status: 'error',
-      message,
-    });
-};
+const successResponse = (res, status, message, data) =>
+  createResponse(res, status, message, data);
 
-const generateToken = (user) => {
-    return jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-};
+const errorResponse = (res, status, message) =>
+  createResponse(res, status, message);
+
+const generateToken = (user) =>
+  jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
 module.exports = { successResponse, errorResponse, generateToken };

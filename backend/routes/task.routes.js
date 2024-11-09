@@ -9,6 +9,9 @@ router.post("/", auth, isAdmin, taskController.createTask);
 // Get all tasks
 router.get("/", auth, taskController.getAllTasks);
 
+// Get all tasks for a user
+router.get("/user", auth, taskController.getAllTasksForUser);
+
 // Get a single task by ID
 router.get("/:id", auth, taskController.getTaskById);
 

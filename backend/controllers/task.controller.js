@@ -22,6 +22,16 @@ exports.createTask = async (req, res) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
+    const tasks = await Task.find();
+    successResponse(res, 200, 'Tasks retrieved successfully', tasks);
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get all tasks for a user
+exports.getAllTasksForUser = async (req, res) => {
+  try {
     const tasks = await Task.find({ user: req.user._id });
     successResponse(res, 200, 'Tasks retrieved successfully', tasks);
   } catch (error) {
