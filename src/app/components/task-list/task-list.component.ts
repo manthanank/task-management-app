@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../core/models/tasks.models';
+import { Task } from '../../core/models/tasks.model';
 import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 

@@ -66,7 +66,7 @@ exports.getAllTasksForUser = async (req, res) => {
 // Get a single task by ID
 exports.getTaskById = async (req, res) => {
   try {
-    const task = await Task.findOne({ _id: req.params.id, user: req.user._id });
+    const task = await Task.findOne({ _id: req.params.id }).populate('user', '-password');
     if (!task) {
       return errorResponse(res, 404, "Task not found");
     }
