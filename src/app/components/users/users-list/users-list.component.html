@@ -1,0 +1,36 @@
+<div class="container mx-auto p-4">
+    <h2 class="text-3xl font-bold mb-6">Users</h2>
+    @if (loading()) {
+    <div class="bg-white shadow-md rounded-lg p-4">
+        <div class="text-gray-600">Loading...</div>
+    </div>
+    }
+    @if (error()) {
+    <div class="text-red-600">{{ error() }}</div>
+    }
+    @if (!loading() && !error()) {
+    @if (users().length === 0) {
+    <div class="bg-white shadow-md rounded-lg p-4">
+        <p class="text-gray-600">No users found.</p>
+    </div>
+    }
+    @if (users().length > 0) {
+    <div>
+        <ul class="space-y-4">
+            @for (user of users(); track $index) {
+            <li class="bg-white shadow-md rounded-lg p-4">
+                <p class="text-lg font-semibold">{{ user.email }}</p>
+                <p class="text-gray-600">Role: {{ user.role }}</p>
+            </li>
+            }
+        </ul>
+    </div>
+    }
+    <div class="flex justify-between mt-4">
+        <button (click)="previousPage()" [disabled]="currentPage() === 1"
+            class="bg-blue-500 text-white px-4 py-2 rounded">Previous</button>
+        <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+            class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
+    </div>
+    }
+</div>

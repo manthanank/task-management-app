@@ -5,6 +5,9 @@
         </div>
         <div>
             @if (isLoggedIn() && isAdmin()) {
+            <a routerLink="users" class="text-white no-underline mr-4 hover:underline">Users</a>
+            }
+            @if (isLoggedIn() && isAdmin()) {
             <a routerLink="tasks/new" class="text-white no-underline mr-4 hover:underline">Add Task</a>
             }
             @if (isLoggedIn()) {

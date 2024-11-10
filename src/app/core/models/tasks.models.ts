@@ -1,7 +1,14 @@
 export interface Tasks {
   status: string
   message: string
-  data: Task[]
+  data: Data
+}
+
+export interface Data {
+  tasks: Task[]
+  totalTasks: number
+  totalPages: number
+  currentPage: number
 }
 
 export interface Task {

@@ -36,4 +36,10 @@
             </ul>
         </ng-template>
     </ng-template>
+    <div class="flex justify-between mt-4">
+        <button (click)="previousPage()" [disabled]="currentPage() === 1"
+            class="bg-blue-500 text-white px-4 py-2 rounded">Previous</button>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+            class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
+    </div>
 </div>
