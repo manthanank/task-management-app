@@ -66,7 +66,10 @@ exports.getAllTasksForUser = async (req, res) => {
 // Get a single task by ID
 exports.getTaskById = async (req, res) => {
   try {
-    const task = await Task.findOne({ _id: req.params.id }).populate('user', '-password');
+    const task = await Task.findOne({ _id: req.params.id }).populate(
+      "user",
+      "-password"
+    );
     if (!task) {
       return errorResponse(res, 404, "Task not found");
     }
@@ -105,6 +108,68 @@ exports.deleteTask = async (req, res) => {
       return errorResponse(res, 404, "Task not found");
     }
     successResponse(res, 200, "Task deleted successfully");
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get ongoing tasks
+exports.getOngoingTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({ completed: false });
+    successResponse(res, 200, "Ongoing tasks retrieved successfully", tasks);
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get completed tasks
+exports.getCompletedTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({ completed: true });
+    successResponse(res, 200, "Completed tasks retrieved successfully", tasks);
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get paginated ongoing tasks
+exports.getPaginatedOngoingTasks = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const tasks = await Task.find({ completed: false }).skip(skip).limit(limit);
+    const totalTasks = await Task.countDocuments({ completed: false });
+
+    successResponse(res, 200, "Ongoing tasks retrieved successfully", {
+      tasks,
+      totalTasks,
+      totalPages: Math.ceil(totalTasks / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get paginated completed tasks
+exports.getPaginatedCompletedTasks = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const tasks = await Task.find({ completed: true }).skip(skip).limit(limit);
+    const totalTasks = await Task.countDocuments({ completed: true });
+
+    successResponse(res, 200, "Completed tasks retrieved successfully", {
+      tasks,
+      totalTasks,
+      totalPages: Math.ceil(totalTasks / limit),
+      currentPage: page,
+    });
   } catch (error) {
     errorResponse(res, 500, error.message);
   }

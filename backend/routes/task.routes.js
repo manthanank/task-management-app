@@ -21,4 +21,10 @@ router.delete("/:id", auth, taskController.deleteTask);
 // Get all tasks for a user
 router.get("/user", auth, taskController.getAllTasksForUser);
 
+// Get ongoing tasks
+router.get("/ongoing", auth, taskController.getOngoingTasks);
+
+// Get completed tasks
+router.get("/completed", auth, taskController.getCompletedTasks);
+
 module.exports = router;
