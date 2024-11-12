@@ -19,6 +19,14 @@ export class TaskService {
     return this.http.get<Tasks>(`${this.apiUrl}?page=${page}&limit=${limit}`);
   }
 
+  getCompletedTasks(page: number, limit: number): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.apiUrl}/completed?page=${page}&limit=${limit}`);
+  }
+
+  getPendingTasks(page: number, limit: number): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.apiUrl}/ongoing?page=${page}&limit=${limit}`);
+  }
+
   getTaskById(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
