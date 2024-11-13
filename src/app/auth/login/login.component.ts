@@ -9,18 +9,20 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgClass],
+  imports: [ReactiveFormsModule, RouterLink, NgClass, LoaderComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   loginForm: FormGroup;
   error = signal<string>('');
   showPassword = signal<boolean>(false);
+  loading = signal<boolean>(false);
 
   router = inject(Router);
   authService = inject(AuthService);
@@ -45,15 +47,18 @@ export class LoginComponent {
     if (this.loginForm.invalid) {
       return;
     }
+    this.loading.set(true);
     const data = {
       email: this.loginForm.value.email,
       password: this.loginForm.value.password,
     };
     this.authService.login(data).subscribe({
       next: (res) => {
+        this.loading.set(false);
         this.router.navigate(['/tasks']);
       },
       error: (err) => {
+        this.loading.set(false);
         console.error(err);
         this.error.set(err?.error?.message || 'An error occurred');
       },
