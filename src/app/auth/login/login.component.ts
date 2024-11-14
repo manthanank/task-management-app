@@ -24,9 +24,9 @@ export class LoginComponent {
   showPassword = signal<boolean>(false);
   loading = signal<boolean>(false);
 
-  router = inject(Router);
-  authService = inject(AuthService);
-  fb = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -43,25 +43,37 @@ export class LoginComponent {
     this.showPassword.update((state) => !state);
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       return;
     }
-    this.loading.set(true);
-    const data = {
+    this.setLoadingState(true);
+    const data = this.getFormData();
+    this.authService.login(data).subscribe({
+      next: () => this.handleLoginSuccess(),
+      error: (err) => this.handleLoginError(err),
+    });
+  }
+
+  private setLoadingState(state: boolean): void {
+    this.loading.set(state);
+  }
+
+  private getFormData(): { email: string; password: string } {
+    return {
       email: this.loginForm.value.email,
       password: this.loginForm.value.password,
     };
-    this.authService.login(data).subscribe({
-      next: (res) => {
-        this.loading.set(false);
-        this.router.navigate(['/tasks']);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        console.error(err);
-        this.error.set(err?.error?.message || 'An error occurred');
-      },
-    });
+  }
+
+  private handleLoginSuccess(): void {
+    this.setLoadingState(false);
+    this.router.navigate(['/tasks']);
+  }
+
+  private handleLoginError(err: any): void {
+    this.setLoadingState(false);
+    console.error(err);
+    this.error.set(err?.error?.message || 'An error occurred');
   }
 }
