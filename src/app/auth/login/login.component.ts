@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import {
   FormBuilder,
@@ -23,6 +23,7 @@ export class LoginComponent {
   error = signal<string>('');
   showPassword = signal<boolean>(false);
   loading = signal<boolean>(false);
+  isLoading = computed(() => this.loading());
 
   private router = inject(Router);
   private authService = inject(AuthService);
