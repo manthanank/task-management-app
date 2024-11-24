@@ -12,11 +12,10 @@ import { NgClass } from '@angular/common';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgClass, LoaderComponent],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+    selector: 'app-login',
+    imports: [ReactiveFormsModule, RouterLink, NgClass, LoaderComponent],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   loginForm: FormGroup;

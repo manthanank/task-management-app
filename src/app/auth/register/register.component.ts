@@ -11,11 +11,10 @@ import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgClass],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
+    selector: 'app-register',
+    imports: [ReactiveFormsModule, RouterLink, NgClass],
+    templateUrl: './register.component.html',
+    styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
   registerForm: FormGroup;

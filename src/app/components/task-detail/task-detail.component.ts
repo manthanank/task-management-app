@@ -5,11 +5,10 @@ import { DatePipe } from '@angular/common';
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-task-detail',
-  standalone: true,
-  imports: [DatePipe],
-  templateUrl: './task-detail.component.html',
-  styleUrl: './task-detail.component.scss',
+    selector: 'app-task-detail',
+    imports: [DatePipe],
+    templateUrl: './task-detail.component.html',
+    styleUrl: './task-detail.component.scss'
 })
 export class TaskDetailComponent implements OnInit {
   task = signal<any>(null);

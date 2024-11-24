@@ -3,11 +3,10 @@ import { UsersService } from '../../../services/users.service';
 import { User } from '../../../core/models/users.model';
 
 @Component({
-  selector: 'app-users-list',
-  standalone: true,
-  imports: [],
-  templateUrl: './users-list.component.html',
-  styleUrls: ['./users-list.component.scss'],
+    selector: 'app-users-list',
+    imports: [],
+    templateUrl: './users-list.component.html',
+    styleUrls: ['./users-list.component.scss']
 })
 export class UsersListComponent implements OnInit {
   users = signal<User[]>([]);

@@ -12,11 +12,10 @@ import { User } from '../../core/models/user.model';
 import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-task-form',
-  standalone: true,
-  imports: [ReactiveFormsModule, NgClass],
-  templateUrl: './task-form.component.html',
-  styleUrl: './task-form.component.scss',
+    selector: 'app-task-form',
+    imports: [ReactiveFormsModule, NgClass],
+    templateUrl: './task-form.component.html',
+    styleUrl: './task-form.component.scss'
 })
 export class TaskFormComponent {
   taskForm: FormGroup;

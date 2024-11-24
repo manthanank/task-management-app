@@ -5,11 +5,10 @@ import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
-  selector: 'app-task-list',
-  standalone: true,
-  imports: [RouterLink, NgTemplateOutlet],
-  templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.scss'],
+    selector: 'app-task-list',
+    imports: [RouterLink, NgTemplateOutlet],
+    templateUrl: './task-list.component.html',
+    styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements OnInit {
   completedTasks$ = signal<Task[]>([]);
