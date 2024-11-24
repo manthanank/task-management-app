@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TaskService } from '../../services/task.service';
+import { TaskService } from '../../../services/task.service';
 import {
   FormBuilder,
   FormGroup,
@@ -7,8 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../core/models/user.model';
+import { AuthService } from '../../../services/auth.service';
+import { User } from '../../../core/models/user.model';
 import { NgClass } from '@angular/common';
 
 @Component({

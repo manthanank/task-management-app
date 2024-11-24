@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService } from '../../services/task.service';
+import { TaskService } from '../../../services/task.service';
 import { DatePipe } from '@angular/common';
 import { Location } from '@angular/common';
 

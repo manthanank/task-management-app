@@ -37,7 +37,7 @@ export const routes: Routes = [
   {
     path: 'tasks',
     loadComponent: () =>
-      import('./components/task-list/task-list.component').then(
+      import('./components/tasks/task-list/task-list.component').then(
         (m) => m.TaskListComponent
       ),
     canActivate: [AuthGuard],
@@ -45,7 +45,7 @@ export const routes: Routes = [
   {
     path: 'tasks/new',
     loadComponent: () =>
-      import('./components/task-form/task-form.component').then(
+      import('./components/tasks/task-form/task-form.component').then(
         (m) => m.TaskFormComponent
       ),
     canActivate: [AuthGuard, AdminGuard],
@@ -53,7 +53,7 @@ export const routes: Routes = [
   {
     path: 'tasks/:id',
     loadComponent: () =>
-      import('./components/task-detail/task-detail.component').then(
+      import('./components/tasks/task-detail/task-detail.component').then(
         (m) => m.TaskDetailComponent
       ),
     canActivate: [AuthGuard],
