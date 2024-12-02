@@ -17,10 +17,7 @@ export class AppComponent {
 
   constructor() {
     this.meta.addTags([
-      { name: 'keywords', content: 'Angular, Node.js, Express, MongoDB' },
       { name: 'description', content: 'An Angular task management app' },
-      { name: 'robots', content: 'index, follow' },
-      { name: 'author', content: 'Manthan Ankolekar' },
       { charset: 'UTF-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { rel: 'icon', type: 'image/x-icon', href: 'favicon.ico' },
