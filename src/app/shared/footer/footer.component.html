@@ -1,5 +1,54 @@
-<footer class="bg-gray-800 text-white p-4 mt-8 text-center">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="text-sm sm:text-base md:text-lg lg:text-xl">&copy; 2024 Task Management App. All rights reserved.</p>
+<footer class="bg-gray-800 text-white py-8 mt-auto">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between gap-8">
+            <!-- App Info -->
+            <div class="mb-6 md:mb-0 md:w-1/3">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-ttasks text-blue-400 text-2xl mr-2"></i>
+                    <h2 class="text-xl font-bold">Task Management App</h2>
+                </div>
+                <p class="text-gray-400 text-sm">
+                    A simple yet powerful application to manage your tasks efficiently. Built with Angular, Node.js, Express, and MongoDB.
+                </p>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="mb-6 md:mb-0">
+                <h3 class="text-lg font-bold mb-3 border-b border-gray-700 pb-1">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a routerLink="/" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                    @if (!isLoggedIn()) {
+                        <li><a routerLink="/login" class="text-gray-400 hover:text-white transition-colors">Login</a></li>
+                        <li><a routerLink="/register" class="text-gray-400 hover:text-white transition-colors">Register</a></li>
+                    } @else {
+                        <li><a routerLink="/tasks" class="text-gray-400 hover:text-white transition-colors">My Tasks</a></li>
+                        @if (isAdmin()) {
+                            <li><a routerLink="/users" class="text-gray-400 hover:text-white transition-colors">Users</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div>
+                <h3 class="text-lg font-bold mb-3 border-b border-gray-700 pb-1">Connect</h3>
+                <div class="flex space-x-4 text-xl">
+                    <a href="https://github.com/manthanank" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://twitter.com/manthanank" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/manthanank" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-4 border-t border-gray-700 text-center">
+            <p class="text-sm text-gray-400">&copy; 2024 Task Management App. All rights reserved.</p>
+            <p class="text-xs text-gray-500 mt-1">Created by <a href="https://github.com/manthanank" target="_blank" rel="noopener" class="text-blue-400 hover:underline">Manthan Ankolekar</a></p>
+        </div>
     </div>
 </footer>

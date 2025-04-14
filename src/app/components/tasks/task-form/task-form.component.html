@@ -1,85 +1,161 @@
-<div class="container mx-auto mt-4">
-    <h2 class="text-2xl font-bold mb-4">Create Task</h2>
-    <form [formGroup]="taskForm" (ngSubmit)="createTask()">
-        <div class="mb-4">
-            <label class="block text-gray-700">Title</label>
-            <input type="text" formControlName="title" name="title" required placeholder="Enter title"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            @if (taskForm.get('title')?.invalid && (taskForm.get('title')?.touched || taskForm.get('title')?.dirty)) {
-            @if (
-            taskForm.get('title')?.errors?.['required']) {
-            <p class="text-red-500 text-xs italic">Title is required</p>
-            }
-            @if (
-            taskForm.get('title')?.errors?.['minlength']){
-            <p class="text-red-500 text-xs italic">Title must be at least 3 characters long</p>
-            }
-            }
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="mb-6">
+        <a routerLink="/tasks" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Tasks
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-plus-circle mr-2"></i> Create New Task
+            </h2>
+            <p class="text-blue-100 mt-1">Fill in the details below to create a task</p>
         </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Description</label>
-            <textarea formControlName="description" name="description" required placeholder="Enter description"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-            @if (taskForm.get('description')?.invalid && (taskForm.get('description')?.touched ||
-            taskForm.get('description')?.dirty)) {
-            @if (
-            taskForm.get('description')?.errors?.['required']) {
-            <p class="text-red-500 text-xs italic">Description is required</p>
-            }
-            @if (
-            taskForm.get('description')?.errors?.['minlength']){
-            <p class="text-red-500 text-xs italic">Description must be at least 3 characters long</p>
-            }
-            }
+        
+        <div class="p-6">
+            <form [formGroup]="taskForm" (ngSubmit)="createTask()" class="space-y-6">
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Task Title <span class="text-red-500">*</span></label>
+                    <input 
+                        type="text" 
+                        id="title"
+                        formControlName="title" 
+                        placeholder="Enter a descriptive title" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    @if (taskForm.get('title')?.invalid && (taskForm.get('title')?.touched || taskForm.get('title')?.dirty)) {
+                        <div class="mt-1 text-sm text-red-600">
+                            @if (taskForm.get('title')?.errors?.['required']) {
+                                <p><i class="fas fa-info-circle mr-1"></i>Title is required</p>
+                            }
+                            @if (taskForm.get('title')?.errors?.['minlength']) {
+                                <p><i class="fas fa-info-circle mr-1"></i>Title must be at least 3 characters</p>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                    <textarea 
+                        id="description"
+                        formControlName="description" 
+                        rows="4" 
+                        placeholder="Provide a detailed description of the task" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    ></textarea>
+                    @if (taskForm.get('description')?.invalid && (taskForm.get('description')?.touched || taskForm.get('description')?.dirty)) {
+                        <div class="mt-1 text-sm text-red-600">
+                            @if (taskForm.get('description')?.errors?.['required']) {
+                                <p><i class="fas fa-info-circle mr-1"></i>Description is required</p>
+                            }
+                            @if (taskForm.get('description')?.errors?.['minlength']) {
+                                <p><i class="fas fa-info-circle mr-1"></i>Description must be at least 3 characters</p>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Deadline -->
+                    <div>
+                        <label for="deadline" class="block text-sm font-medium text-gray-700 mb-1">Deadline <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-calendar-alt text-gray-400"></i>
+                            </div>
+                            <input 
+                                type="date" 
+                                id="deadline"
+                                formControlName="deadline" 
+                                [min]="minDate" 
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+                        @if (taskForm.get('deadline')?.invalid && (taskForm.get('deadline')?.touched || taskForm.get('deadline')?.dirty)) {
+                            <div class="mt-1 text-sm text-red-600">
+                                @if (taskForm.get('deadline')?.errors?.['required']) {
+                                    <p><i class="fas fa-info-circle mr-1"></i>Deadline is required</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Priority -->
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Priority <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-flag text-gray-400"></i>
+                            </div>
+                            <select 
+                                id="priority"
+                                formControlName="priority" 
+                                class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                            >
+                                <option value="" disabled selected>Select priority</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                        @if (taskForm.get('priority')?.invalid && (taskForm.get('priority')?.touched || taskForm.get('priority')?.dirty)) {
+                            <div class="mt-1 text-sm text-red-600">
+                                @if (taskForm.get('priority')?.errors?.['required']) {
+                                    <p><i class="fas fa-info-circle mr-1"></i>Priority is required</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Assignee -->
+                <div>
+                    <label for="userId" class="block text-sm font-medium text-gray-700 mb-1">Assign To <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <select 
+                            id="userId"
+                            formControlName="userId" 
+                            class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                        >
+                            <option value="" disabled selected>Select user</option>
+                            @for (user of users; track user._id) {
+                                <option [value]="user._id">{{ user.email }}</option>
+                            }
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                    @if (taskForm.get('userId')?.invalid && (taskForm.get('userId')?.touched || taskForm.get('userId')?.dirty)) {
+                        <div class="mt-1 text-sm text-red-600">
+                            @if (taskForm.get('userId')?.errors?.['required']) {
+                                <p><i class="fas fa-info-circle mr-1"></i>Assignee is required</p>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                <div class="pt-4">
+                    <button 
+                        type="submit" 
+                        class="w-full flex justify-center items-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" 
+                        [disabled]="taskForm.invalid"
+                        [ngClass]="{'opacity-50 cursor-not-allowed': taskForm.invalid}"
+                    >
+                        <i class="fas fa-plus-circle mr-2"></i> Create Task
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Deadline</label>
-            <input type="date" formControlName="deadline" name="deadline" [min]="minDate"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            @if (taskForm.get('deadline')?.invalid && (taskForm.get('deadline')?.touched ||
-            taskForm.get('deadline')?.dirty)) {
-            @if (
-            taskForm.get('deadline')?.errors?.['required']) {
-            <p class="text-red-500 text-xs italic">Deadline is required</p>
-            }
-            }
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Priority</label>
-            <select formControlName="priority" name="priority"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-            </select>
-            @if (taskForm.get('priority')?.invalid && (taskForm.get('priority')?.touched ||
-            taskForm.get('priority')?.dirty))
-            {
-            @if (
-            taskForm.get('priority')?.errors?.['required']) {
-            <p class="text-red-500 text-xs italic">Priority is required</p>
-            }
-            }
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700">Users</label>
-            <select formControlName="userId" name="user"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                @for (user of users; track $index) {
-                <option [value]="user._id">{{ user.email }}</option>
-                }
-            </select>
-            @if (taskForm.get('userId')?.invalid && (taskForm.get('userId')?.touched || taskForm.get('userId')?.dirty))
-            {
-            @if (
-            taskForm.get('userId')?.errors?.['required']) {
-            <p class="text-red-500 text-xs italic">User is required</p>
-            }
-            }
-        </div>
-        <button type="submit"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            [disabled]="taskForm.invalid" [ngClass]="{ 'opacity-50 cursor-not-allowed': taskForm.invalid }">Create
-            Task</button>
-    </form>
+    </div>
 </div>

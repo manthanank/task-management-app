@@ -2,16 +2,17 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../core/models/tasks.model';
 import { RouterLink } from '@angular/router';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgClass, DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-task-list',
-    imports: [RouterLink, NgTemplateOutlet],
+    imports: [RouterLink, NgClass, DatePipe],
     templateUrl: './task-list.component.html',
     styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements OnInit {
-  completedTasks$ = signal<Task[]>([]);
+  // Change the name to be consistent (remove $ suffix)
+  completedTasks = signal<Task[]>([]);
   pendingTasks = signal<Task[]>([]);
 
   completedPaginatedTasks = signal<Task[]>([]);
@@ -37,7 +38,6 @@ export class TaskListComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    // this.loadTasks(this.currentPage(), this.itemsPerPage());
     this.loadCompletedTasks(
       this.completedCurrentPage(),
       this.completedItemsPerPage()
@@ -52,15 +52,15 @@ export class TaskListComponent implements OnInit {
     this.completedLoading.set(true);
     this.taskService.getCompletedTasks(page, limit).subscribe({
       next: (response) => {
-        this.completedTasks$.set(response?.data?.tasks || []);
-        this.completedTotalPages.set(
-          response?.data?.totalPages ||
-            Math.ceil(
-              this.completedTasks$().length / this.completedItemsPerPage()
-            )
-        );
+        // Set the tasks directly from the response
+        this.completedTasks.set(response?.data?.tasks || []);
+        this.completedTotalPages.set(response?.data?.totalPages || 1);
         this.completedCurrentPage.set(response?.data?.currentPage || 1);
-        this.updateCompletedPaginatedTasks();
+        
+        // No need to call updateCompletedPaginatedTasks() here
+        // as we're directly using the paginated data from the API
+        this.completedPaginatedTasks.set(response?.data?.tasks || []);
+        
         this.completedLoading.set(false);
       },
       error: (error) => {
@@ -76,12 +76,12 @@ export class TaskListComponent implements OnInit {
     this.taskService.getPendingTasks(page, limit).subscribe({
       next: (response) => {
         this.pendingTasks.set(response?.data?.tasks || []);
-        this.pendingTotalPages.set(
-          response?.data?.totalPages ||
-            Math.ceil(this.pendingTasks().length / this.pendingItemsPerPage())
-        );
+        this.pendingTotalPages.set(response?.data?.totalPages || 1);
         this.pendingCurrentPage.set(response?.data?.currentPage || 1);
-        this.updatePendingPaginatedTasks();
+        
+        // Directly set the paginated tasks from the API response
+        this.pendingPaginatedTasks.set(response?.data?.tasks || []);
+        
         this.pendingLoading.set(false);
       },
       error: (error) => {
@@ -96,8 +96,9 @@ export class TaskListComponent implements OnInit {
     const startIndex =
       (this.completedCurrentPage() - 1) * this.completedItemsPerPage();
     const endIndex = startIndex + this.completedItemsPerPage();
+    // Update to use the renamed signal
     this.completedPaginatedTasks.set(
-      this.completedTasks$().slice(startIndex, endIndex)
+      this.completedTasks().slice(startIndex, endIndex)
     );
   }
 
@@ -156,5 +157,15 @@ export class TaskListComponent implements OnInit {
     } else {
       console.log('Already on the first page.');
     }
+  }
+
+  refreshData() {
+    this.pendingLoading.set(true);
+    this.completedLoading.set(true);
+    this.pendingError.set('');
+    this.completedError.set('');
+    
+    this.loadCompletedTasks(this.completedCurrentPage(), this.completedItemsPerPage());
+    this.loadPendingTasks(this.pendingCurrentPage(), this.pendingItemsPerPage());
   }
 }

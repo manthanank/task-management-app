@@ -19,7 +19,7 @@ export class TaskService {
     return this.http.get<Tasks>(`${this.apiUrl}?page=${page}&limit=${limit}`);
   }
 
-  getCompletedTasks(page: number, limit: number): Observable<Tasks> {
+  getCompletedTasks(page = 1, limit = 10): Observable<Tasks> {
     return this.http.get<Tasks>(`${this.apiUrl}/completed?page=${page}&limit=${limit}`);
   }
 

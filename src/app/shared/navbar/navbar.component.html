@@ -1,19 +1,86 @@
-<nav class="bg-gray-800 p-4">
-    <div class="container mx-auto flex justify-between items-center">
-        <div class="text-white text-lg">
-            <a routerLink="" class="text-white no-underline mr-4 hover:underline">Task Management App</a>
+<nav class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg">
+    <div class="container mx-auto px-4">
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <a routerLink="" class="flex items-center space-x-2">
+                    <i class="fas fa-tasks text-white text-xl"></i>
+                    <span class="text-white font-bold text-xl">Task Management</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                @if (isLoggedIn()) {
+                    <a routerLink="/tasks" class="text-white hover:text-blue-200 transition-colors duration-200">
+                        <i class="fas fa-list-check mr-1"></i> My Tasks
+                    </a>
+                    
+                    @if (isAdmin()) {
+                        <a routerLink="/users" class="text-white hover:text-blue-200 transition-colors duration-200">
+                            <i class="fas fa-users mr-1"></i> Users
+                        </a>
+                        
+                        <a routerLink="/tasks/new" class="text-white hover:text-blue-200 transition-colors duration-200">
+                            <i class="fas fa-plus mr-1"></i> New Task
+                        </a>
+                    }
+                    
+                    <button (click)="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                } @else {
+                    <a routerLink="/login" class="text-white hover:text-blue-200 transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                    <a routerLink="/register" class="bg-white hover:bg-gray-100 text-blue-700 px-4 py-2 rounded-md transition-colors duration-200">
+                        <i class="fas fa-user-plus mr-1"></i> Sign Up
+                    </a>
+                }
+            </div>
         </div>
-        <div>
-            @if (isLoggedIn() && isAdmin()) {
-            <a routerLink="users" class="text-white no-underline mr-4 hover:underline">Users</a>
-            }
-            @if (isLoggedIn() && isAdmin()) {
-            <a routerLink="tasks/new" class="text-white no-underline mr-4 hover:underline">Add Task</a>
-            }
-            @if (isLoggedIn()) {
-            <button (click)="logout()"
-                class="text-white bg-transparent border-none cursor-pointer hover:underline">Logout</button>
-            }
+
+        <!-- Mobile Navigation -->
+        <div class="md:hidden">
+            <div class="flex justify-between items-center h-14">
+                <a routerLink="" class="flex items-center space-x-2">
+                    <i class="fas fa-tasks text-white text-lg"></i>
+                    <span class="text-white font-bold text-lg">Task Management</span>
+                </a>
+                
+                <button (click)="toggleMobileMenu()" class="text-white focus:outline-none">
+                    <i class="fas" [ngClass]="showMobileMenu() ? 'fa-times' : 'fa-bars'"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div [ngClass]="showMobileMenu() ? 'block' : 'hidden'" class="pt-2 pb-3 space-y-1">
+                @if (isLoggedIn()) {
+                    <a routerLink="/tasks" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-list-check mr-1"></i> My Tasks
+                    </a>
+                    
+                    @if (isAdmin()) {
+                        <a routerLink="/users" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fas fa-users mr-1"></i> Users
+                        </a>
+                        
+                        <a routerLink="/tasks/new" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fas fa-plus mr-1"></i> New Task
+                        </a>
+                    }
+                    
+                    <button (click)="logout()" class="w-full text-left px-3 py-2 text-white hover:bg-red-600 transition-colors duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                } @else {
+                    <a routerLink="/login" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                    <a routerLink="/register" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-user-plus mr-1"></i> Sign Up
+                    </a>
+                }
+            </div>
         </div>
     </div>
 </nav>

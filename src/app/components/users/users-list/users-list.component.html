@@ -1,36 +1,122 @@
-<div class="container mx-auto p-4">
-    <h2 class="text-3xl font-bold mb-6">Users</h2>
-    @if (loading()) {
-    <div class="bg-white shadow-md rounded-lg p-4">
-        <div class="text-gray-600">Loading...</div>
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-users mr-3 text-blue-600"></i> User Management
+        </h2>
     </div>
+
+    <!-- Loading State -->
+    @if(loading()) {
+        <div class="flex items-center justify-center p-12">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-4 text-gray-600">Loading users...</p>
+            </div>
+        </div>
     }
-    @if (error()) {
-    <div class="text-red-600">{{ error() }}</div>
+    
+    <!-- Error State -->
+    @else if(error()) {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle mt-1"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="font-medium">Something went wrong</p>
+                    <p class="text-sm">{{ error() }}</p>
+                    <button class="text-sm underline mt-2" (click)="loadUsers(1, itemsPerPage())">Try again</button>
+                </div>
+            </div>
+        </div>
     }
-    @if (!loading() && !error()) {
-    @if (users().length === 0) {
-    <div class="bg-white shadow-md rounded-lg p-4">
-        <p class="text-gray-600">No users found.</p>
-    </div>
-    }
-    @if (users().length > 0) {
-    <div>
-        <ul class="space-y-4">
-            @for (user of users(); track $index) {
-            <li class="bg-white shadow-md rounded-lg p-4">
-                <p class="text-lg font-semibold">{{ user.email }}</p>
-                <p class="text-gray-600">Role: {{ user.role }}</p>
-            </li>
-            }
-        </ul>
-    </div>
-    }
-    <div class="flex justify-between mt-4">
-        <button (click)="previousPage()" [disabled]="currentPage() === 1"
-            class="bg-blue-500 text-white px-4 py-2 rounded">Previous</button>
-        <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
-            class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
-    </div>
+    
+    <!-- Users Content -->
+    @else {
+        <!-- Empty State -->
+        @if(users().length === 0) {
+            <div class="bg-white rounded-xl shadow-md p-12">
+                <div class="flex flex-col items-center justify-center text-center">
+                    <div class="bg-blue-100 p-4 rounded-full">
+                        <i class="fas fa-users text-blue-500 text-2xl"></i>
+                    </div>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">No users found</h3>
+                    <p class="mt-1 text-gray-500">There are no users to display at this time.</p>
+                </div>
+            </div>
+        }
+        
+        @else {
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-4">
+                    <h3 class="text-xl font-bold text-white flex items-center justify-between">
+                        <div>
+                            <i class="fas fa-user-circle mr-2"></i> Registered Users
+                            <span class="ml-2 bg-white text-blue-700 text-sm py-1 px-2 rounded-full">{{ totalUsers() }}</span>
+                        </div>
+                        <div class="text-sm text-white">
+                            Showing page {{ currentPage() }} of {{ totalPages() }}
+                        </div>
+                    </h3>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @for (user of paginatedUsers(); track user._id) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user text-blue-500"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ user.email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full" 
+                                              [ngClass]="{
+                                                  'bg-purple-100 text-purple-800': user.role === 'admin',
+                                                  'bg-green-100 text-green-800': user.role === 'user'
+                                              }">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                @if(totalPages() > 1) {
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <button (click)="previousPage()" 
+                                    [disabled]="currentPage() === 1"
+                                    class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
+                                <i class="fas fa-arrow-left mr-1"></i> Previous
+                            </button>
+                            <span class="text-sm text-gray-600">
+                                Showing {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ Math.min(currentPage() * itemsPerPage(), totalUsers()) }} of {{ totalUsers() }} users
+                            </span>
+                            <button (click)="nextPage()" 
+                                    [disabled]="currentPage() === totalPages()"
+                                    class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
+                                Next <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     }
 </div>

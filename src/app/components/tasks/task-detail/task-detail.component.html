@@ -1,34 +1,147 @@
-<div class="container mx-auto p-2">
-    <button (click)="goBack()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-4">
-        Go Back
-    </button>
-</div>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="mb-6">
+        <button (click)="goBack()" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Tasks
+        </button>
+    </div>
 
-@if(loading()){
-<div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <p class="text-gray-600 mb-2">Loading...</p>
-</div>
-}
+    <!-- Loading State -->
+    @if(loading()) {
+        <div class="bg-white rounded-xl shadow-md p-12 flex justify-center">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-4 text-gray-600">Loading task details...</p>
+            </div>
+        </div>
+    }
 
-@if(error()){
-<div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <p class="text-red-500 mb-2">{{ error() }}</p>
-</div>
-}
+    <!-- Error State -->
+    @else if(error()) {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle mt-1"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="font-medium">Something went wrong</p>
+                    <p class="text-sm">{{ error() }}</p>
+                    <button class="text-sm underline mt-2" (click)="goBack()">Go back</button>
+                </div>
+            </div>
+        </div>
+    }
 
-@if(!loading() && !error()){
-<div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <h2 class="text-3xl font-bold mb-4 text-gray-800">{{ task()?.title }}</h2>
-    <p class="text-gray-600 mb-2">{{ task()?.description }}</p>
-    <p class="text-gray-600 mb-2">Deadline: {{ task()?.deadline | date }}</p>
-    <p class="text-gray-600 mb-2">Priority: {{ task()?.priority }}</p>
-    <p class="text-gray-600 mb-4">Completed: {{ task()?.completed ? 'Yes' : 'No' }}</p>
-    <button (click)="completeTask()"
-        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full mb-4">
-        Complete Task
-    </button>
-    @if(isCompleted()){
-    <p class="text-green-500 font-bold">This task is already completed.</p>
+    <!-- Task Details -->
+    @else {
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <!-- Task Header -->
+            <div class="bg-gradient-to-r" 
+                 [ngClass]="{
+                    'from-green-500 to-green-700': task()?.completed,
+                    'from-blue-500 to-blue-700': !task()?.completed
+                 }">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white" [ngClass]="{'line-through': task()?.completed}">{{ task()?.title }}</h1>
+                            <div class="flex items-center mt-2">
+                                <span class="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                    <i class="far fa-calendar-alt mr-1"></i> {{ task()?.deadline | date:'mediumDate' }}
+                                </span>
+                                
+                                <span class="ml-2 text-xs font-medium px-2 py-1 rounded-full" 
+                                      [ngClass]="{
+                                        'bg-red-100 text-red-800': task()?.priority === 'High',
+                                        'bg-yellow-100 text-yellow-800': task()?.priority === 'Medium',
+                                        'bg-green-100 text-green-800': task()?.priority === 'Low'
+                                      }">
+                                    {{ task()?.priority }} Priority
+                                </span>
+                                
+                                <span class="ml-2 bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
+                                    <i class="far fa-user mr-1"></i> {{ task()?.user?.email || 'Unassigned' }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <span class="bg-white text-sm font-medium px-3 py-1 rounded-full" 
+                                  [ngClass]="{
+                                    'text-green-700': task()?.completed,
+                                    'text-blue-700': !task()?.completed
+                                  }">
+                                <i class="fas" [ngClass]="{
+                                    'fa-check-circle': task()?.completed,
+                                    'fa-clock': !task()?.completed
+                                }"></i>
+                                {{ task()?.completed ? 'Completed' : 'In Progress' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Content -->
+            <div class="p-6">
+                <div class="mb-8">
+                    <h2 class="text-lg font-medium text-gray-800 mb-2">Description</h2>
+                    <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                        {{ task()?.description || 'No description provided' }}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4">
+                    @if(!task()?.completed) {
+                        <button 
+                            (click)="completeTask()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                        >
+                            <i class="fas fa-check-circle mr-2"></i> Mark as Complete
+                        </button>
+                    }
+                    <button 
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    >
+                        <i class="fas fa-edit mr-2"></i> Edit Task
+                    </button>
+                    <button 
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    >
+                        <i class="fas fa-trash-alt mr-2"></i> Delete Task
+                    </button>
+                </div>
+                
+                <!-- Task Timeline -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Task Timeline</h3>
+                    <div class="relative">
+                        <div class="absolute top-0 bottom-0 left-3.5 w-1 bg-gray-200"></div>
+                        <ul class="space-y-4 relative">
+                            <li class="flex gap-4">
+                                <div class="bg-blue-100 h-8 w-8 rounded-full flex items-center justify-center z-10">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Task Created</h4>
+                                    <p class="text-xs text-gray-500">{{ task()?.createdAt | date:'medium' }}</p>
+                                </div>
+                            </li>
+                            @if(task()?.completed) {
+                                <li class="flex gap-4">
+                                    <div class="bg-green-100 h-8 w-8 rounded-full flex items-center justify-center z-10">
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900">Task Completed</h4>
+                                        <p class="text-xs text-gray-500">{{ task()?.updatedAt | date:'medium' }}</p>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>
-}

@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { UsersService } from '../../../services/users.service';
 import { User } from '../../../core/models/users.model';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-users-list',
-    imports: [],
+    imports: [NgClass],
     templateUrl: './users-list.component.html',
-    styleUrls: ['./users-list.component.scss']
+    styleUrl: './users-list.component.scss'
 })
 export class UsersListComponent implements OnInit {
   users = signal<User[]>([]);
@@ -14,9 +15,11 @@ export class UsersListComponent implements OnInit {
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(10);
   totalPages = signal<number>(0);
+  totalUsers = signal<number>(0); // Add this signal to track total users
   usersService = inject(UsersService);
   error = signal<string>('');
   loading = signal<boolean>(false);
+  Math = Math;
 
   constructor() {}
 
@@ -28,44 +31,38 @@ export class UsersListComponent implements OnInit {
     this.loading.set(true);
     this.usersService.getUsers(page, limit).subscribe({
       next: (response) => {
+        // Set users directly from the response
         this.users.set(response?.data?.users || []);
-        this.totalPages.set(
-          response?.data?.totalPages ||
-            Math.ceil(this.users().length / this.itemsPerPage())
-        );
+        
+        // Set pagination values
+        this.totalPages.set(response?.data?.totalPages || 1);
         this.currentPage.set(response?.data?.currentPage || 1);
-        this.updatePaginatedUsers();
+        this.totalUsers.set(response?.data?.totalUsers || 0); // Set total users count
+        
+        // Set paginated users
+        this.paginatedUsers.set(response?.data?.users || []);
+        
         this.loading.set(false);
       },
       error: (error) => {
         console.error('Error getting users:', error);
-        this.error.set('Error getting users');
+        this.error.set('Error loading users. Please try again.');
         this.loading.set(false);
       },
     });
   }
 
-  updatePaginatedUsers() {
-    const startIndex = (this.currentPage() - 1) * this.itemsPerPage();
-    const endIndex = startIndex + this.itemsPerPage();
-    this.paginatedUsers.set(this.users().slice(startIndex, endIndex));
-  }
-
   nextPage() {
     if (this.currentPage() < this.totalPages()) {
-      this.currentPage.set(this.currentPage() + 1);
-      this.loadUsers(this.currentPage(), this.itemsPerPage());
-    } else {
-      console.log('No more pages to display.');
+      const nextPageNum = this.currentPage() + 1;
+      this.loadUsers(nextPageNum, this.itemsPerPage());
     }
   }
 
   previousPage() {
     if (this.currentPage() > 1) {
-      this.currentPage.set(this.currentPage() - 1);
-      this.loadUsers(this.currentPage(), this.itemsPerPage());
-    } else {
-      console.log('Already on the first page.');
+      const prevPageNum = this.currentPage() - 1;
+      this.loadUsers(prevPageNum, this.itemsPerPage());
     }
   }
 }

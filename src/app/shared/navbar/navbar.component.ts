@@ -1,16 +1,20 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-navbar',
-    imports: [RouterLink],
+    imports: [RouterLink, NgClass],
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
   authService = inject(AuthService);
   router = inject(Router);
+  
+  // Signal for mobile menu visibility
+  showMobileMenu = signal(false);
 
   constructor() {}
 
@@ -25,5 +29,10 @@ export class NavbarComponent {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+    this.showMobileMenu.set(false);
+  }
+  
+  toggleMobileMenu() {
+    this.showMobileMenu.update(value => !value);
   }
 }

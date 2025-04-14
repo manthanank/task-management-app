@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaskService } from '../../../services/task.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Location } from '@angular/common';
 
 @Component({
     selector: 'app-task-detail',
-    imports: [DatePipe],
+    imports: [DatePipe, NgClass],
     templateUrl: './task-detail.component.html',
     styleUrl: './task-detail.component.scss'
 })

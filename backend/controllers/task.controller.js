@@ -68,9 +68,14 @@ exports.getCompletedTasks = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const tasks = await Task.find({ completed: true }).skip(skip).limit(limit);
+    // Modify this line to include sort by updatedAt in descending order
+    const tasks = await Task.find({ completed: true })
+      .sort({ updatedAt: -1 })  // Sort by most recently updated first
+      .skip(skip)
+      .limit(limit);
     const totalTasks = await Task.countDocuments({ completed: true });
 
+    // Ensure we're sending back the proper metadata
     successResponse(res, 200, "Completed tasks retrieved successfully", {
       tasks,
       totalTasks,

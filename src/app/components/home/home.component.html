@@ -1,7 +1,75 @@
 <main class="flex-grow container mx-auto px-4 py-8">
-    <div class="text-center">
-        <h1 class="text-4xl font-bold mb-4">Welcome to Task Management App</h1>
-        <p class="text-lg mb-8">Manage your tasks efficiently and effectively with our app.</p>
-        <a routerLink="login" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Get Started</a>
+    <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-8">
+        <!-- Content Section -->
+        <div class="md:w-1/2 text-left">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-gray-800">Simplify Your Task Management</h1>
+            <p class="text-lg mb-6 text-gray-600">Track, organize, and complete your tasks efficiently with our user-friendly platform.</p>
+            
+            <div class="flex gap-4 mb-8">
+                <a routerLink="login" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                    Log In
+                </a>
+                <a routerLink="signup" class="border border-blue-500 text-blue-500 hover:bg-blue-50 px-6 py-3 rounded-lg transition-colors font-medium">
+                    Sign Up
+                </a>
+            </div>
+            
+            <!-- Features -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    <p>Easy task organization</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-bell text-yellow-500 mt-1"></i>
+                    <p>Priority management</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-users text-blue-500 mt-1"></i>
+                    <p>User assignment</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-calendar text-purple-500 mt-1"></i>
+                    <p>Deadline tracking</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Image Section -->
+        <div class="md:w-1/2 mb-8 md:mb-0">
+            <img src="image.png" alt="Task Management Illustration" 
+                 class="w-full max-w-lg mx-auto rounded-lg shadow-lg" 
+                 onerror="this.src='https://task-management-app-manthanank.vercel.app/image.png'; this.onerror=null;">
+        </div>
     </div>
+    
+    <!-- How It Works Section -->
+    <section class="mt-12 md:mt-24">
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-plus text-blue-500 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Create Tasks</h3>
+                <p class="text-gray-600">Add new tasks with titles, descriptions, deadlines, and priority levels.</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-tasks text-green-500 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Track Progress</h3>
+                <p class="text-gray-600">Monitor ongoing and completed tasks with an intuitive dashboard.</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-double text-purple-500 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Complete Tasks</h3>
+                <p class="text-gray-600">Mark tasks as complete and keep track of your accomplishments.</p>
+            </div>
+        </div>
+    </section>
 </main>

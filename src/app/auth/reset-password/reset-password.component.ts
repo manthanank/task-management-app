@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -7,16 +7,18 @@ import {
 } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-reset-password',
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink, NgClass],
     templateUrl: './reset-password.component.html',
     styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit {
   resetPasswordForm: FormGroup = new FormGroup({});
   token: string;
+  error = signal<string>('');
 
   authService = inject(AuthService);
   route = inject(ActivatedRoute);
@@ -28,17 +30,25 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetPasswordForm = new FormGroup({
-      password: new FormControl('', [Validators.required]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(20)
+      ]),
       confirmPassword: new FormControl('', [Validators.required]),
     });
   }
 
   onSubmit() {
+    if (this.resetPasswordForm.invalid) {
+      return;
+    }
+    
     if (
       this.resetPasswordForm.value.password !==
       this.resetPasswordForm.value.confirmPassword
     ) {
-      console.error('Passwords do not match');
+      this.error.set('Passwords do not match');
       return;
     }
 
@@ -51,6 +61,7 @@ export class ResetPasswordComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
+          this.error.set(err?.error?.message || 'Password reset failed. Please try again.');
         },
       });
   }
