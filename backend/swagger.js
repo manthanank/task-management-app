@@ -18,7 +18,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://task-management-app-backend.vercel.app',
+        url: 'https://task-management-app-8t3d.vercel.app',
         description: 'Production server',
       },
     ],
