@@ -1,37 +1,41 @@
-<div class="max-w-lg mx-auto mt-10 bg-white rounded-lg shadow p-8">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-        <i class="fas fa-user-circle mr-2 text-blue-600"></i> My Profile
-    </h2>
-    <div *ngIf="loading()">Loading...</div>
-    <div *ngIf="error()" class="text-red-500 mb-4">{{ error() }}</div>
-    <div *ngIf="profile()">
-        <div class="mb-4">
-            <span class="font-semibold">Name:</span>
-            <span>{{ profile().name || 'N/A' }}</span>
-        </div>
-        <div class="mb-4">
-            <span class="font-semibold">Email:</span>
-            <span>{{ profile().email }}</span>
-        </div>
-        <div class="mb-4">
-            <span class="font-semibold">Role:</span>
-            <span class="capitalize">{{ profile().role }}</span>
-        </div>
-        <div class="mb-4" *ngIf="profile().createdAt">
-            <span class="font-semibold">Joined:</span>
-            <span>{{ profile().createdAt | date:'mediumDate' }}</span>
-        </div>
-        <div class="mb-4" *ngIf="profile().organization">
-            <span class="font-semibold">Organization:</span>
-            <span>{{ profile().organization.name }}</span>
-        </div>
-        <div class="mb-4" *ngIf="profile().organizationRole">
-            <span class="font-semibold">Organization Role:</span>
-            <span>{{ profile().organizationRole }}</span>
-        </div>
-        <div class="mb-4" *ngIf="profile().joinedAt">
-            <span class="font-semibold">Joined Organization:</span>
-            <span>{{ profile().joinedAt | date:'mediumDate' }}</span>
-        </div>
+<div class="max-w-xl mx-auto mt-12 bg-white rounded-2xl shadow-lg p-10">
+  <div class="flex items-center mb-8">
+    <div class="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mr-6">
+      <i class="fas fa-user-circle text-blue-500 text-5xl"></i>
     </div>
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800 mb-1">My Profile</h2>
+      <p class="text-gray-500">{{ profile()?.email }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="flex justify-center py-8">
+    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+  <div *ngIf="error()" class="text-red-500 mb-4 text-center">{{ error() }}</div>
+
+  <div *ngIf="profile() && !loading()">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <div class="text-xs text-gray-400 uppercase mb-1">Role</div>
+        <div class="capitalize text-lg font-medium text-gray-800">{{ profile().role }}</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-400 uppercase mb-1">Joined</div>
+        <div class="text-lg text-gray-800">{{ profile().createdAt | date:'mediumDate' }}</div>
+      </div>
+      <div *ngIf="profile().organization">
+        <div class="text-xs text-gray-400 uppercase mb-1">Organization</div>
+        <div class="text-lg text-gray-800">{{ profile().organization.name }}</div>
+      </div>
+      <div *ngIf="profile().organizationRole">
+        <div class="text-xs text-gray-400 uppercase mb-1">Organization Role</div>
+        <div class="text-lg text-gray-800">{{ profile().organizationRole }}</div>
+      </div>
+      <div *ngIf="profile().joinedAt">
+        <div class="text-xs text-gray-400 uppercase mb-1">Joined Organization</div>
+        <div class="text-lg text-gray-800">{{ profile().joinedAt | date:'mediumDate' }}</div>
+      </div>
+    </div>
+  </div>
 </div>
