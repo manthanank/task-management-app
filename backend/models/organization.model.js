@@ -61,9 +61,6 @@ const organizationSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  logo: {
-    type: String // URL to logo image
-  },
   createdAt: {
     type: Date,
     default: Date.now

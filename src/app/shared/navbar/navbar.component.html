@@ -8,41 +8,43 @@
                     <span class="text-white font-bold text-xl">Task Management</span>
                 </a>
             </div>
-            
+
             <div class="flex items-center space-x-6">
                 @if (isLoggedIn()) {
-                    <a routerLink="/tasks" class="text-white hover:text-blue-200 transition-colors duration-200">
-                        <i class="fas fa-list-check mr-1"></i> My Tasks
-                    </a>
-                    
-                    <a routerLink="/profile" class="text-white hover:text-blue-200 transition-colors duration-200">
-                        <i class="fas fa-user-circle mr-1"></i> Profile
-                    </a>
+                <a routerLink="/tasks" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-list-check mr-1"></i> My Tasks
+                </a>
 
-                    <a routerLink="/organizations" class="text-white hover:text-blue-200 transition-colors duration-200">
-                        <i class="fas fa-building mr-1"></i> Organizations
-                    </a>
-                    
-                    @if (isAdmin()) {
-                        <a routerLink="/users" class="text-white hover:text-blue-200 transition-colors duration-200">
-                            <i class="fas fa-users mr-1"></i> Users
-                        </a>
-                        
-                        <a routerLink="/tasks/new" class="text-white hover:text-blue-200 transition-colors duration-200">
-                            <i class="fas fa-plus mr-1"></i> New Task
-                        </a>
-                    }
-                    
-                    <button (click)="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
+                <a routerLink="/profile" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-user-circle mr-1"></i> Profile
+                </a>
+
+                @if (isAdmin()) {
+                <a routerLink="/organizations" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-building mr-1"></i> Organizations
+                </a>
+
+                <a routerLink="/users" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-users mr-1"></i> Users
+                </a>
+
+                <a routerLink="/tasks/new" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-plus mr-1"></i> New Task
+                </a>
+                }
+
+                <button (click)="logout()"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
                 } @else {
-                    <a routerLink="/login" class="text-white hover:text-blue-200 transition-colors duration-200">
-                        <i class="fas fa-sign-in-alt mr-1"></i> Login
-                    </a>
-                    <a routerLink="/register" class="bg-white hover:bg-gray-100 text-blue-700 px-4 py-2 rounded-md transition-colors duration-200">
-                        <i class="fas fa-user-plus mr-1"></i> Sign Up
-                    </a>
+                <a routerLink="/login" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                </a>
+                <a routerLink="/register"
+                    class="bg-white hover:bg-gray-100 text-blue-700 px-4 py-2 rounded-md transition-colors duration-200">
+                    <i class="fas fa-user-plus mr-1"></i> Sign Up
+                </a>
                 }
             </div>
         </div>
@@ -54,47 +56,55 @@
                     <i class="fas fa-tasks text-white text-lg"></i>
                     <span class="text-white font-bold text-lg">Task Management</span>
                 </a>
-                
+
                 <button (click)="toggleMobileMenu()" class="text-white focus:outline-none">
                     <i class="fas" [ngClass]="showMobileMenu() ? 'fa-times' : 'fa-bars'"></i>
                 </button>
             </div>
-            
+
             <!-- Mobile Menu -->
             <div [ngClass]="showMobileMenu() ? 'block' : 'hidden'" class="pt-2 pb-3 space-y-1">
                 @if (isLoggedIn()) {
-                    <a routerLink="/tasks" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-list-check mr-1"></i> My Tasks
-                    </a>
-                    
-                    <a routerLink="/profile" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-user-circle mr-1"></i> Profile
-                    </a>
+                <a routerLink="/tasks"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-list-check mr-1"></i> My Tasks
+                </a>
 
-                    <a routerLink="/organizations" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-building mr-1"></i> Organizations
-                    </a>
-                    
-                    @if (isAdmin()) {
-                        <a routerLink="/users" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fas fa-users mr-1"></i> Users
-                        </a>
-                        
-                        <a routerLink="/tasks/new" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fas fa-plus mr-1"></i> New Task
-                        </a>
-                    }
-                    
-                    <button (click)="logout()" class="w-full text-left px-3 py-2 text-white hover:bg-red-600 transition-colors duration-200">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
+                <a routerLink="/profile"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-user-circle mr-1"></i> Profile
+                </a>
+
+                <a routerLink="/organizations"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-building mr-1"></i> Organizations
+                </a>
+
+                @if (isAdmin()) {
+                <a routerLink="/users"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-users mr-1"></i> Users
+                </a>
+
+                <a routerLink="/tasks/new"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-plus mr-1"></i> New Task
+                </a>
+                }
+
+                <button (click)="logout()"
+                    class="w-full text-left px-3 py-2 text-white hover:bg-red-600 transition-colors duration-200">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
                 } @else {
-                    <a routerLink="/login" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-sign-in-alt mr-1"></i> Login
-                    </a>
-                    <a routerLink="/register" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-user-plus mr-1"></i> Sign Up
-                    </a>
+                <a routerLink="/login"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                </a>
+                <a routerLink="/register"
+                    class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                    <i class="fas fa-user-plus mr-1"></i> Sign Up
+                </a>
                 }
             </div>
         </div>

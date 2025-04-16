@@ -28,35 +28,6 @@ router.get('/', auth, isAdmin, organizationController.getAllOrganizations);
 
 /**
  * @swagger
- * /api/organizations/{id}:
- *   get:
- *     tags:
- *       - Organizations
- *     summary: Get organization by ID
- *     description: Retrieve an organization by its ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Organization ID
- *     responses:
- *       200:
- *         description: Organization details
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Organization not found
- *       500:
- *         description: Server error
- */
-router.get('/:id', auth, organizationController.getOrganizationById);
-
-/**
- * @swagger
  * /api/organizations:
  *   post:
  *     tags:
@@ -90,6 +61,57 @@ router.get('/:id', auth, organizationController.getOrganizationById);
  *         description: Server error
  */
 router.post('/', auth, isAdmin, organizationController.createOrganization);
+
+/**
+ * @swagger
+ * /api/organizations/my:
+ *   get:
+ *     tags:
+ *       - Organizations
+ *     summary: Get current user's organization
+ *     description: Retrieve the organization associated with the authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Organization retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Organization not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/my', auth, organizationController.getMyOrganization);
+
+/**
+ * @swagger
+ * /api/organizations/{id}:
+ *   get:
+ *     tags:
+ *       - Organizations
+ *     summary: Get organization by ID
+ *     description: Retrieve an organization by its ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Organization ID
+ *     responses:
+ *       200:
+ *         description: Organization details
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Organization not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id', auth, organizationController.getOrganizationById);
 
 /**
  * @swagger

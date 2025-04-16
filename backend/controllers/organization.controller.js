@@ -4,12 +4,11 @@ const { successResponse, errorResponse } = require('../utils/response');
 // Create a new organization
 exports.createOrganization = async (req, res) => {
   try {
-    const { name, description, logo } = req.body;
+    const { name, description } = req.body;
     
     const newOrganization = new Organization({
       name,
       description,
-      logo,
       owner: req.user._id,
       members: [{ user: req.user._id, role: 'admin' }]
     });
@@ -50,6 +49,18 @@ exports.getMyOrganizations = async (req, res) => {
   }
 };
 
+exports.getMyOrganization = async (req, res) => {
+  try {
+    const user = await require('../models/user.model').findById(req.user._id).populate('organization');
+    if (!user || !user.organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+    return res.status(200).json({ organization: user.organization });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 // Get organization by ID
 exports.getOrganizationById = async (req, res) => {
   try {
@@ -79,7 +90,7 @@ exports.getOrganizationById = async (req, res) => {
 // Update organization
 exports.updateOrganization = async (req, res) => {
   try {
-    const { name, description, logo } = req.body;
+    const { name, description } = req.body;
     
     const organization = await Organization.findById(req.params.id);
     
@@ -99,7 +110,7 @@ exports.updateOrganization = async (req, res) => {
     
     const updatedOrganization = await Organization.findByIdAndUpdate(
       req.params.id,
-      { name, description, logo },
+      { name, description },
       { new: true }
     );
     
