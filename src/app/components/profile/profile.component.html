@@ -6,6 +6,10 @@
     <div *ngIf="error()" class="text-red-500 mb-4">{{ error() }}</div>
     <div *ngIf="profile()">
         <div class="mb-4">
+            <span class="font-semibold">Name:</span>
+            <span>{{ profile().name || 'N/A' }}</span>
+        </div>
+        <div class="mb-4">
             <span class="font-semibold">Email:</span>
             <span>{{ profile().email }}</span>
         </div>
@@ -13,10 +17,21 @@
             <span class="font-semibold">Role:</span>
             <span class="capitalize">{{ profile().role }}</span>
         </div>
+        <div class="mb-4" *ngIf="profile().createdAt">
+            <span class="font-semibold">Joined:</span>
+            <span>{{ profile().createdAt | date:'mediumDate' }}</span>
+        </div>
         <div class="mb-4" *ngIf="profile().organization">
             <span class="font-semibold">Organization:</span>
             <span>{{ profile().organization.name }}</span>
         </div>
-        <!-- Add more fields as needed -->
+        <div class="mb-4" *ngIf="profile().organizationRole">
+            <span class="font-semibold">Organization Role:</span>
+            <span>{{ profile().organizationRole }}</span>
+        </div>
+        <div class="mb-4" *ngIf="profile().joinedAt">
+            <span class="font-semibold">Joined Organization:</span>
+            <span>{{ profile().joinedAt | date:'mediumDate' }}</span>
+        </div>
     </div>
 </div>

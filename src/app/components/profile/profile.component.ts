@@ -1,11 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
-import { NgIf } from '@angular/common';
+import { DatePipe, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-profile',
-  imports: [NgIf],
+  imports: [NgIf, DatePipe],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {

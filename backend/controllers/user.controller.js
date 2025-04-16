@@ -56,14 +56,49 @@ exports.getUsersByOrganization = async (req, res) => {
   }
 };
 
-// Get current user's profile
+// Get current user's profile with organization info and org role
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    // Populate organization info
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('organization', 'name _id'); // Add more fields if needed
+
     if (!user) {
       return errorResponse(res, 404, "User not found");
     }
-    return successResponse(res, 200, "Profile retrieved successfully", user);
+
+    let organizationRole = null;
+    let joinedAt = null;
+
+    // If user has an organization, find their role and join date from org.members
+    if (user.organization) {
+      const Organization = require("../models/organization.model");
+      const org = await Organization.findById(user.organization._id);
+      if (org) {
+        const member = org.members.find(
+          m => m.user.toString() === user._id.toString()
+        );
+        if (member) {
+          organizationRole = member.role;
+          joinedAt = member.joinedAt;
+        }
+      }
+    }
+
+    // Build profile response
+    const profile = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      organization: user.organization,
+      organizationRole,
+      joinedAt,
+    };
+
+    return successResponse(res, 200, "Profile retrieved successfully", profile);
   } catch (error) {
     return errorResponse(res, 500, error.message);
   }
