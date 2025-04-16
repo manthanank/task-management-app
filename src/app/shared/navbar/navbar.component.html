@@ -18,6 +18,10 @@
                     <a routerLink="/profile" class="text-white hover:text-blue-200 transition-colors duration-200">
                         <i class="fas fa-user-circle mr-1"></i> Profile
                     </a>
+
+                    <a routerLink="/organizations" class="text-white hover:text-blue-200 transition-colors duration-200">
+                        <i class="fas fa-building mr-1"></i> Organizations
+                    </a>
                     
                     @if (isAdmin()) {
                         <a routerLink="/users" class="text-white hover:text-blue-200 transition-colors duration-200">
@@ -65,6 +69,10 @@
                     
                     <a routerLink="/profile" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
                         <i class="fas fa-user-circle mr-1"></i> Profile
+                    </a>
+
+                    <a routerLink="/organizations" class="block px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-building mr-1"></i> Organizations
                     </a>
                     
                     @if (isAdmin()) {

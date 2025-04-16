@@ -10,9 +10,7 @@ const mongoURI = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.re3ha3x.mongodb
 
 module.exports = async function connectDB() {
     try {
-        await mongoose.connect(mongoURI, {
-            useNewUrlParser: true
-        });
+        await mongoose.connect(mongoURI);
         console.log('MongoDB connected');
     } catch (error) {
         console.error('MongoDB connection failed');
