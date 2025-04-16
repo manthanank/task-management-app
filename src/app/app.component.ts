@@ -8,7 +8,6 @@ import { Meta } from '@angular/platform-browser';
     selector: 'app-root',
     imports: [RouterOutlet, FooterComponent, NavbarComponent],
     templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'task-management-app';

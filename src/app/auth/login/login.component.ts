@@ -9,13 +9,11 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
-import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
     selector: 'app-login',
-    imports: [ReactiveFormsModule, RouterLink, NgClass, LoaderComponent],
+    imports: [ReactiveFormsModule, RouterLink, NgClass],
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   loginForm: FormGroup;

@@ -1,9 +1,11 @@
 <div class="container mx-auto p-4 max-w-7xl">
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800">My Tasks</h2>
-        <a routerLink="/tasks/new" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md">
-            <i class="fas fa-plus mr-2"></i> New Task
-        </a>
+        @if (isAdmin()) {
+            <a routerLink="/tasks/new" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md">
+                <i class="fas fa-plus mr-2"></i> New Task
+            </a>
+        }
     </div>
 
     <!-- Loading State -->
@@ -56,7 +58,9 @@
                                 <i class="fas fa-check text-blue-500 text-xl"></i>
                             </div>
                             <p class="text-gray-600 mt-4">No ongoing tasks found.</p>
-                            <a routerLink="/tasks/new" class="mt-4 text-blue-500 hover:text-blue-700 underline">Create a new task</a>
+                            @if (isAdmin()) {
+                                <a routerLink="/tasks/new" class="mt-4 text-blue-500 hover:text-blue-700 underline">Create a new task</a>
+                            }
                         </div>
                     }
                     @else {

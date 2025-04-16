@@ -6,16 +6,16 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { User } from '../../../core/models/user.model';
 import { NgClass } from '@angular/common';
+import { UsersService } from '../../../services/users.service';
 
 @Component({
     selector: 'app-task-form',
-    imports: [ReactiveFormsModule, NgClass],
+    imports: [ReactiveFormsModule, NgClass, RouterLink],
     templateUrl: './task-form.component.html',
-    styleUrl: './task-form.component.scss'
 })
 export class TaskFormComponent {
   taskForm: FormGroup;
@@ -23,10 +23,13 @@ export class TaskFormComponent {
   userId: string = '';
   users: User[] = [];
   minDate: string = new Date().toISOString().split('T')[0];
-
+  loading = { set: (value: boolean) => { /* loading logic */ } };
+  error: string = '';
+  
   router = inject(Router);
   taskService = inject(TaskService);
   auth = inject(AuthService);
+  usersService = inject(UsersService);
   fb = inject(FormBuilder);
 
   constructor() {
@@ -40,17 +43,23 @@ export class TaskFormComponent {
   }
 
   ngOnInit() {
-    this.getUsers();
+    this.loadOrganizationUsers();
   }
 
-  getUsers() {
-    this.auth.getUsers().subscribe({
+  loadOrganizationUsers() {
+    this.loading.set(true);
+    this.usersService.getUsers().subscribe({
       next: (response) => {
-        this.users = response;
+        if (response.status === 'success') {
+          this.users = response.data.users || [];
+        }
+        this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error getting users:', error);
-      },
+        console.error('Error loading users:', error);
+        this.error = error?.error?.message || 'Error loading users';
+        this.loading.set(false);
+      }
     });
   }
 

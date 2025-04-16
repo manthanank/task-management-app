@@ -1,8 +1,8 @@
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <div class="mb-6">
-        <button (click)="goBack()" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+        <a routerLink="/tasks" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
             <i class="fas fa-arrow-left mr-2"></i> Back to Tasks
-        </button>
+        </a>
     </div>
 
     <!-- Loading State -->
@@ -90,25 +90,32 @@
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
+                <!-- Updated Button Section -->
                 <div class="flex flex-wrap gap-4">
                     @if(!task()?.completed) {
                         <button 
                             (click)="completeTask()" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                            [disabled]="loading()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
                         >
-                            <i class="fas fa-check-circle mr-2"></i> Mark as Complete
+                            <i class="fas" [ngClass]="{'fa-check-circle': !loading(), 'fa-spinner fa-spin': loading()}"></i> 
+                            <span class="ml-2">{{ loading() ? 'Updating...' : 'Mark as Complete' }}</span>
                         </button>
                     }
                     <button 
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        (click)="editTask()"
+                        [disabled]="loading() || deleting()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                     >
                         <i class="fas fa-edit mr-2"></i> Edit Task
                     </button>
                     <button 
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                        (click)="deleteTask()"
+                        [disabled]="deleting() || loading()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
                     >
-                        <i class="fas fa-trash-alt mr-2"></i> Delete Task
+                        <i class="fas" [ngClass]="{'fa-trash-alt': !deleting(), 'fa-spinner fa-spin': deleting()}"></i>
+                        <span class="ml-2">{{ deleting() ? 'Deleting...' : 'Delete Task' }}</span>
                     </button>
                 </div>
                 

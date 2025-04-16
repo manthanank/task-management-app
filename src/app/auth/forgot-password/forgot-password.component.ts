@@ -8,7 +8,6 @@ import { NgClass } from '@angular/common';
     selector: 'app-forgot-password',
     imports: [ReactiveFormsModule, RouterLink, NgClass],
     templateUrl: './forgot-password.component.html',
-    styleUrl: './forgot-password.component.scss'
 })
 export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm: FormGroup = new FormGroup({});

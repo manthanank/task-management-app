@@ -59,11 +59,49 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'tasks/edit/:id',
+    loadComponent: () =>
+      import('./components/tasks/task-edit/task-edit.component').then(
+        (m) => m.TaskEditComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'users',
     loadComponent: () =>
       import('./components/users/users-list/users-list.component').then(
         (m) => m.UsersListComponent
       ),
+  },
+  {
+    path: 'organizations',
+    loadComponent: () =>
+      import('./components/organizations/organization-list/organization-list.component').then(
+        (m) => m.OrganizationListComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'organizations/new',
+    loadComponent: () =>
+      import('./components/organizations/organization-form/organization-form.component').then(
+        (m) => m.OrganizationFormComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'organizations/:id',
+    loadComponent: () =>
+      import('./components/organizations/organization-detail/organization-detail.component').then(
+        (m) => m.OrganizationDetailComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./components/profile/profile.component').then(m => m.ProfileComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: '**',

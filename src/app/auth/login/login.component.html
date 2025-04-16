@@ -1,95 +1,91 @@
-@if (isLoading()) {
-  <app-loader></app-loader>
-} @else {
-  <div class="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
-    <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-      <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold text-gray-800">Welcome Back</h1>
-        <p class="text-gray-600 mt-2">Sign in to your account to continue</p>
-      </div>
-      
-      @if (error()) {
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r" role="alert">
-          <div class="flex">
-            <div class="py-1"><i class="fas fa-exclamation-circle"></i></div>
-            <div class="ml-3">
-              <p class="text-sm">{{ error() }}</p>
-            </div>
-          </div>
-        </div>
-      }
-      
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Email Field -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-envelope text-gray-400"></i>
-            </div>
-            <input id="email" type="text" formControlName="email" name="email"
-                  class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="you@example.com">
-          </div>
-          @if (loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)) {
-            <div class="text-red-500 text-sm mt-1">
-              @if (loginForm.get('email')?.errors?.['required']) {
-                <p><i class="fas fa-info-circle mr-1"></i>Email is required</p>
-              }
-              @if (loginForm.get('email')?.errors?.['email']) {
-                <p><i class="fas fa-info-circle mr-1"></i>Invalid email format</p>
-              }
-            </div>
-          }
-        </div>
-        
-        <!-- Password Field -->
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <a routerLink="/forgot-password" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
-          </div>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-lock text-gray-400"></i>
-            </div>
-            <input [type]="showPassword() ? 'text' : 'password'" id="password" formControlName="password"
-                  class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="••••••••">
-            <button type="button" 
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-400 hover:text-gray-600"
-                    (click)="togglePasswordVisibility()">
-              <span [ngClass]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></span>
-            </button>
-          </div>
-          @if (loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)) {
-            <div class="text-red-500 text-sm mt-1">
-              @if (loginForm.get('password')?.errors?.['required']) {
-                <p><i class="fas fa-info-circle mr-1"></i>Password is required</p>
-              }
-              @if (loginForm.get('password')?.errors?.['minlength']) {
-                <p><i class="fas fa-info-circle mr-1"></i>Password must be at least 6 characters</p>
-              }
-            </div>
-          }
-        </div>
-        
-        <!-- Submit Button -->
-        <button type="submit" 
-                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" 
-                [disabled]="loginForm.invalid"
-                [ngClass]="{ 'opacity-50 cursor-not-allowed': loginForm.invalid }">
-          <span class="mr-2">Sign in</span> <i class="fas fa-sign-in-alt"></i>
-        </button>
-        
-        <!-- Sign Up Link -->
-        <div class="text-center mt-6">
-          <p class="text-sm text-gray-600">
-            Don't have an account? 
-            <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-500">Sign up now</a>
-          </p>
-        </div>
-      </form>
+<div class="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-800">Welcome Back</h1>
+      <p class="text-gray-600 mt-2">Sign in to your account to continue</p>
     </div>
+
+    @if (error()) {
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r" role="alert">
+      <div class="flex">
+        <div class="py-1"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="ml-3">
+          <p class="text-sm">{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-envelope text-gray-400"></i>
+          </div>
+          <input id="email" type="text" formControlName="email" name="email"
+            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="you@example.com">
+        </div>
+        @if (loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)) {
+        <div class="text-red-500 text-sm mt-1">
+          @if (loginForm.get('email')?.errors?.['required']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Email is required</p>
+          }
+          @if (loginForm.get('email')?.errors?.['email']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Invalid email format</p>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <a routerLink="/forgot-password" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <input [type]="showPassword() ? 'text' : 'password'" id="password" formControlName="password"
+            class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="••••••••">
+          <button type="button"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-400 hover:text-gray-600"
+            (click)="togglePasswordVisibility()">
+            <span [ngClass]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></span>
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty ||
+        loginForm.get('password')?.touched)) {
+        <div class="text-red-500 text-sm mt-1">
+          @if (loginForm.get('password')?.errors?.['required']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Password is required</p>
+          }
+          @if (loginForm.get('password')?.errors?.['minlength']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Password must be at least 6 characters</p>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        [disabled]="loginForm.invalid" [ngClass]="{ 'opacity-50 cursor-not-allowed': loginForm.invalid }">
+        <span class="mr-2">Sign in</span> <i class="fas fa-sign-in-alt"></i>
+      </button>
+
+      <!-- Sign Up Link -->
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          Don't have an account?
+          <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-500">Sign up now</a>
+        </p>
+      </div>
+    </form>
   </div>
-}
+</div>

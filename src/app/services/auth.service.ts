@@ -24,7 +24,7 @@ export class AuthService {
   register(user: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user).pipe(
       tap((response: any) => {
-        this.handleAuthentication(response.token, response.expiresIn, response.user.role);
+        this.handleAuthentication(response.token, response.expiresIn, response.user.role, response.organization);
       })
     );
   }
@@ -32,7 +32,7 @@ export class AuthService {
   login(user: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, user).pipe(
       tap((response: any) => {
-        this.handleAuthentication(response.token, response.expiresIn, response.user.role);
+        this.handleAuthentication(response.token, response.expiresIn, response.user.role, response.organization);
       })
     );
   }
@@ -58,6 +58,8 @@ export class AuthService {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('tokenExpirationDate');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('organization');
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
     }
@@ -74,9 +76,12 @@ export class AuthService {
     });
   }
 
-  private handleAuthentication(token: string, expiresIn: number, role: string) {
+  private handleAuthentication(token: string, expiresIn: number, role: string, organization?: string) {
+    const user = { token, expiresIn, role, organization };
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     sessionStorage.setItem('token', token);
+    sessionStorage.setItem('organization', organization || '');
+    sessionStorage.setItem('user', JSON.stringify(user));
     sessionStorage.setItem('tokenExpirationDate', expirationDate.toISOString());
     sessionStorage.setItem('role', role);
     this.autoLogout(expiresIn * 1000);
@@ -99,5 +104,30 @@ export class AuthService {
     this.tokenExpirationTimer = setTimeout(() => {
       this.logout();
     }, expirationDuration);
+  }
+
+  getCurrentUserId(): string | null {
+    try {
+      const token = this.getToken();
+      if (!token) return null;
+      
+      // JWT tokens are in format: header.payload.signature
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded._id;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getCurrentUser(): any {
+    // Get user data from sessionStorage instead of localStorage
+    const userData = sessionStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  saveUserData(user: any): void {
+    // Save to sessionStorage instead of localStorage to match retrieval
+    sessionStorage.setItem('user', JSON.stringify(user));
   }
 }

@@ -1,0 +1,116 @@
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">My Organizations</h2>
+        <a routerLink="/organizations/new" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md">
+            <i class="fas fa-plus mr-2"></i> New Organization
+        </a>
+    </div>
+
+    <!-- Loading State -->
+    @if(loading()) {
+        <div class="flex items-center justify-center p-12">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-4 text-gray-600">Loading organizations...</p>
+            </div>
+        </div>
+    }
+    
+    <!-- Error State -->
+    @else if(error()) {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle mt-1"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="font-medium">Something went wrong</p>
+                    <p class="text-sm">{{ error() }}</p>
+                    <button class="text-sm underline mt-2" (click)="loadOrganizations(1, itemsPerPage())">Try again</button>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <!-- Organizations Content -->
+    @else {
+        <!-- Empty State -->
+        @if(organizations().length === 0) {
+            <div class="bg-white rounded-xl shadow-md p-12">
+                <div class="flex flex-col items-center justify-center text-center">
+                    <div class="bg-blue-100 p-4 rounded-full">
+                        <i class="fas fa-building text-blue-500 text-2xl"></i>
+                    </div>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">No organizations found</h3>
+                    <p class="mt-1 text-gray-500">Create your first organization to get started.</p>
+                    <a routerLink="/organizations/new" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i> Create Organization
+                    </a>
+                </div>
+            </div>
+        }
+        
+        @else {
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                @for (org of organizations(); track org._id) {
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow">
+                        <div class="p-6 pb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                @if (org.logo) {
+                                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                        <img src="{{ org.logo }}" alt="{{ org.name }} logo" class="object-cover">
+                                    </div>
+                                } @else {
+                                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-building text-blue-500 text-xl"></i>
+                                    </div>
+                                }
+                                <div class="text-xs bg-gray-100 px-2 py-1 rounded-full">
+                                    {{ org.members.length }} members
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold text-gray-800 mt-2 mb-1">{{ org.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                {{ org.description || 'No description provided' }}
+                            </p>
+                            
+                            <div class="text-xs text-gray-500 mb-4">
+                                Created by {{ org.owner.email }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto p-4 pt-2 border-t border-gray-100">
+                            <a [routerLink]="['/organizations', org._id]" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fas fa-eye mr-2"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <!-- Pagination -->
+            @if(totalPages() > 1) {
+                <div class="mt-8 flex justify-center">
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow-md">
+                        <div class="flex-1 flex justify-between items-center">
+                            <button (click)="previousPage()" 
+                                    [disabled]="currentPage() === 1"
+                                    class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
+                                <i class="fas fa-arrow-left mr-1"></i> Previous
+                            </button>
+                            <span class="text-sm text-gray-600">
+                                Showing {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ Math.min(currentPage() * itemsPerPage(), totalOrganizations()) }} of {{ totalOrganizations() }} organizations
+                            </span>
+                            <button (click)="nextPage()" 
+                                    [disabled]="currentPage() === totalPages()"
+                                    class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
+                                Next <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>

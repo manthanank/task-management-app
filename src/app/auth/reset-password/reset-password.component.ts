@@ -13,7 +13,6 @@ import { NgClass } from '@angular/common';
     selector: 'app-reset-password',
     imports: [ReactiveFormsModule, RouterLink, NgClass],
     templateUrl: './reset-password.component.html',
-    styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit {
   resetPasswordForm: FormGroup = new FormGroup({});

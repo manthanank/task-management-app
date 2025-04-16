@@ -6,7 +6,6 @@ import { AuthService } from '../../services/auth.service';
     selector: 'app-footer',
     imports: [RouterLink],
     templateUrl: './footer.component.html',
-    styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
   authService = inject(AuthService);

@@ -7,7 +7,6 @@ import { NgClass } from '@angular/common';
     selector: 'app-users-list',
     imports: [NgClass],
     templateUrl: './users-list.component.html',
-    styleUrl: './users-list.component.scss'
 })
 export class UsersListComponent implements OnInit {
   users = signal<User[]>([]);
@@ -29,24 +28,18 @@ export class UsersListComponent implements OnInit {
 
   loadUsers(page: number, limit: number) {
     this.loading.set(true);
-    this.usersService.getUsers(page, limit).subscribe({
+    this.usersService.getUsersByOrganization(page, limit).subscribe({
       next: (response) => {
-        // Set users directly from the response
         this.users.set(response?.data?.users || []);
-        
-        // Set pagination values
         this.totalPages.set(response?.data?.totalPages || 1);
         this.currentPage.set(response?.data?.currentPage || 1);
-        this.totalUsers.set(response?.data?.totalUsers || 0); // Set total users count
-        
-        // Set paginated users
+        this.totalUsers.set(response?.data?.totalUsers || 0);
         this.paginatedUsers.set(response?.data?.users || []);
-        
         this.loading.set(false);
       },
       error: (error) => {
         console.error('Error getting users:', error);
-        this.error.set('Error loading users. Please try again.');
+        this.error.set('Error getting users');
         this.loading.set(false);
       },
     });

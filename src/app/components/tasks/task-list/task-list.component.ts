@@ -3,12 +3,12 @@ import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../core/models/tasks.model';
 import { RouterLink } from '@angular/router';
 import { NgClass, DatePipe } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-task-list',
     imports: [RouterLink, NgClass, DatePipe],
     templateUrl: './task-list.component.html',
-    styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements OnInit {
   // Change the name to be consistent (remove $ suffix)
@@ -27,7 +27,11 @@ export class TaskListComponent implements OnInit {
   completedTotalPages = signal<number>(0);
   pendingTotalPages = signal<number>(0);
 
+  completedTotalTasks = signal<number>(0); // Add signal for total completed tasks
+  pendingTotalTasks = signal<number>(0);   // Add signal for total pending tasks
+
   taskService = inject(TaskService);
+  auth = inject(AuthService);
 
   completedError = signal<string>('');
   pendingError = signal<string>('');
@@ -38,28 +42,26 @@ export class TaskListComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    this.loadCompletedTasks(
-      this.completedCurrentPage(),
-      this.completedItemsPerPage()
-    );
-    this.loadPendingTasks(
-      this.pendingCurrentPage(),
-      this.pendingItemsPerPage()
-    );
+    this.loadUserTasks(this.pendingCurrentPage(), this.pendingItemsPerPage());
   }
 
   loadCompletedTasks(page: number, limit: number) {
     this.completedLoading.set(true);
     this.taskService.getCompletedTasks(page, limit).subscribe({
       next: (response) => {
-        // Set the tasks directly from the response
-        this.completedTasks.set(response?.data?.tasks || []);
-        this.completedTotalPages.set(response?.data?.totalPages || 1);
-        this.completedCurrentPage.set(response?.data?.currentPage || 1);
-        
-        // No need to call updateCompletedPaginatedTasks() here
-        // as we're directly using the paginated data from the API
-        this.completedPaginatedTasks.set(response?.data?.tasks || []);
+        if (response.status === 'success' && response.data) {
+          // Set the tasks directly from the response
+          this.completedTasks.set(response.data.tasks || []);
+          this.completedTotalPages.set(response.data.totalPages || 1);
+          this.completedCurrentPage.set(response.data.currentPage || 1);
+          this.completedTotalTasks.set(response.data.totalTasks || 0);
+          
+          // No need to call updateCompletedPaginatedTasks() here
+          // as we're directly using the paginated data from the API
+          this.completedPaginatedTasks.set(response.data.tasks || []);
+        } else {
+          this.completedError.set('Invalid response format from server');
+        }
         
         this.completedLoading.set(false);
       },
@@ -75,12 +77,17 @@ export class TaskListComponent implements OnInit {
     this.pendingLoading.set(true);
     this.taskService.getPendingTasks(page, limit).subscribe({
       next: (response) => {
-        this.pendingTasks.set(response?.data?.tasks || []);
-        this.pendingTotalPages.set(response?.data?.totalPages || 1);
-        this.pendingCurrentPage.set(response?.data?.currentPage || 1);
-        
-        // Directly set the paginated tasks from the API response
-        this.pendingPaginatedTasks.set(response?.data?.tasks || []);
+        if (response.status === 'success' && response.data) {
+          this.pendingTasks.set(response.data.tasks || []);
+          this.pendingTotalPages.set(response.data.totalPages || 1);
+          this.pendingCurrentPage.set(response.data.currentPage || 1);
+          this.pendingTotalTasks.set(response.data.totalTasks || 0);
+          
+          // Directly set the paginated tasks from the API response
+          this.pendingPaginatedTasks.set(response.data.tasks || []);
+        } else {
+          this.pendingError.set('Invalid response format from server');
+        }
         
         this.pendingLoading.set(false);
       },
@@ -92,6 +99,31 @@ export class TaskListComponent implements OnInit {
     });
   }
 
+  loadUserTasks(page: number, limit: number) {
+    this.pendingLoading.set(true);
+    this.taskService.getUserTasks(page, limit).subscribe({
+      next: (response) => {
+        if (response.status === 'success' && response.data) {
+          this.pendingTasks.set(response.data.tasks || []);
+          this.pendingTotalPages.set(response.data.totalPages || 1);
+          this.pendingCurrentPage.set(response.data.currentPage || 1);
+          this.pendingTotalTasks.set(response.data.totalTasks || 0);
+          this.pendingPaginatedTasks.set(response.data.tasks || []);
+        } else {
+          this.pendingError.set('Invalid response format from server');
+        }
+        this.pendingLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error getting user tasks:', error);
+        this.pendingError.set('Error getting user tasks');
+        this.pendingLoading.set(false);
+      },
+    });
+  }
+
+  // These methods are not currently needed since we're using server-side pagination
+  // but kept for potential client-side pagination fallback
   updateCompletedPaginatedTasks() {
     const startIndex =
       (this.completedCurrentPage() - 1) * this.completedItemsPerPage();
@@ -167,5 +199,9 @@ export class TaskListComponent implements OnInit {
     
     this.loadCompletedTasks(this.completedCurrentPage(), this.completedItemsPerPage());
     this.loadPendingTasks(this.pendingCurrentPage(), this.pendingItemsPerPage());
+  }
+
+  isAdmin() {
+    return this.auth.isAdmin();
   }
 }

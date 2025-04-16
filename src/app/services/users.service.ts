@@ -11,8 +11,15 @@ export class UsersService {
   private apiUrl = `${environment.apiUrl}/users`;
   private http = inject(HttpClient);
 
-  getUsers(page: number, limit: number): Observable<Users> {
-    const url = `${this.apiUrl}?page=${page}&limit=${limit}`;
-    return this.http.get<Users>(url);
+  getUsers(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/organization`)
+  }
+
+  getUsersByOrganization(page: number = 1, limit: number = 100): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/organization?page=${page}&limit=${limit}`);
+  }
+
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/profile`);
   }
 }

@@ -1,0 +1,22 @@
+<div class="max-w-lg mx-auto mt-10 bg-white rounded-lg shadow p-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+        <i class="fas fa-user-circle mr-2 text-blue-600"></i> My Profile
+    </h2>
+    <div *ngIf="loading()">Loading...</div>
+    <div *ngIf="error()" class="text-red-500 mb-4">{{ error() }}</div>
+    <div *ngIf="profile()">
+        <div class="mb-4">
+            <span class="font-semibold">Email:</span>
+            <span>{{ profile().email }}</span>
+        </div>
+        <div class="mb-4">
+            <span class="font-semibold">Role:</span>
+            <span class="capitalize">{{ profile().role }}</span>
+        </div>
+        <div class="mb-4" *ngIf="profile().organization">
+            <span class="font-semibold">Organization:</span>
+            <span>{{ profile().organization.name }}</span>
+        </div>
+        <!-- Add more fields as needed -->
+    </div>
+</div>

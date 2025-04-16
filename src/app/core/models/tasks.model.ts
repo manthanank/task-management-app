@@ -18,6 +18,15 @@ export interface Task {
   deadline: string
   priority: string
   completed: boolean
-  user: string
+  user: User | string
+  createdAt?: string
+  updatedAt?: string
+  __v: number
+}
+
+export interface User {
+  _id: string
+  email: string
+  role: string
   __v: number
 }

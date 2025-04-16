@@ -1,0 +1,87 @@
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="mb-6">
+        <a routerLink="/organizations" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Organizations
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <h2 class="text-2xl font-bold mb-6">Create New Organization</h2>
+        
+        @if(error) {
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                <p class="font-medium">Error</p>
+                <p>{{ error }}</p>
+            </div>
+        }
+        
+        <form [formGroup]="organizationForm" (ngSubmit)="onSubmit()">
+            <div class="space-y-6">
+                <!-- Name Field -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Organization Name <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        formControlName="name"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        [ngClass]="{'border-red-500': organizationForm.get('name')?.invalid && organizationForm.get('name')?.touched}"
+                    >
+                    @if(organizationForm.get('name')?.invalid && organizationForm.get('name')?.touched) {
+                        <div class="text-red-500 text-sm mt-1">
+                            @if(organizationForm.get('name')?.errors?.['required']) {
+                                <p><i class="fas fa-exclamation-circle mr-1"></i> Name is required</p>
+                            }
+                            @if(organizationForm.get('name')?.errors?.['minlength']) {
+                                <p><i class="fas fa-exclamation-circle mr-1"></i> Name must be at least 3 characters</p>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                <!-- Description Field -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea 
+                        id="description" 
+                        formControlName="description"
+                        rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Describe your organization (optional)"
+                    ></textarea>
+                </div>
+                
+                <!-- Logo URL Field -->
+                <div>
+                    <label for="logo" class="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                    <input 
+                        type="url" 
+                        id="logo" 
+                        formControlName="logo"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://example.com/logo.png (optional)"
+                    >
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button 
+                        type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-md transition-colors"
+                        [disabled]="organizationForm.invalid || loading"
+                        [ngClass]="{'opacity-70 cursor-not-allowed': organizationForm.invalid || loading}"
+                    >
+                        <span *ngIf="loading">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Creating...
+                        </span>
+                        <span *ngIf="!loading">
+                            <i class="fas fa-plus mr-2"></i> Create Organization
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

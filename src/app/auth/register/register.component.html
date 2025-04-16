@@ -77,6 +77,67 @@
         </ul>
       </div>
       
+      <!-- Role Selection -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+        <div class="flex flex-col space-y-2">
+          <div class="flex items-center">
+            <input 
+              type="radio" 
+              id="role-user" 
+              formControlName="role" 
+              name="role" 
+              value="user"
+              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+              (change)="updateRoleSelection()">
+            <label for="role-user" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+              <span class="font-medium">Regular User</span>
+              <span class="block text-xs text-gray-500">Join an existing organization</span>
+            </label>
+          </div>
+          <div class="flex items-center">
+            <input 
+              type="radio" 
+              id="role-admin" 
+              formControlName="role" 
+              name="role" 
+              value="admin"
+              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+              (change)="updateRoleSelection()">
+            <label for="role-admin" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
+              <span class="font-medium">Administrator</span>
+              <span class="block text-xs text-gray-500">Create and manage your organization</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Organization Field - with dynamic required status based on role -->
+      <div>
+        <label for="organization" class="block text-sm font-medium text-gray-700 mb-1">
+          Organization Name <span *ngIf="isAdmin()" class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-building text-gray-400"></i>
+          </div>
+          <input type="text" id="organization" formControlName="organization" name="organization"
+                class="w-full pl-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [placeholder]="isAdmin() ? 'Your Organization Name' : 'Your Organization (Optional)'">
+        </div>
+        <p class="mt-1 text-xs text-gray-500">
+          <span *ngIf="isAdmin()">Name of the organization you want to create and manage</span>
+          <span *ngIf="!isAdmin()">Leave empty to join an existing organization later</span>
+        </p>
+        @if (registerForm.get('organization')?.invalid && registerForm.get('organization')?.touched) {
+          <div class="text-red-500 text-sm mt-1">
+            @if (registerForm.get('organization')?.errors?.['required']) {
+              <p><i class="fas fa-info-circle mr-1"></i>Organization name is required for admin accounts</p>
+            }
+          </div>
+        }
+      </div>
+      
       <!-- Submit Button -->
       <button type="submit" 
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" 
