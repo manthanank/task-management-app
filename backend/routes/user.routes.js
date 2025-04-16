@@ -98,8 +98,30 @@ router.get("/", auth, userController.getUsers);
  *         description: Unauthorized
  *       500:
  *         description: Server error
- */
+*/
 router.get("/organization", auth, userController.getUsersByOrganization);
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get current user's profile
+ *     description: Retrieve the profile of the currently authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/profile", auth, userController.getProfile);
 
 /**
  * @swagger
@@ -142,28 +164,6 @@ router.get("/organization", auth, userController.getUsersByOrganization);
  *         description: Server error
  */
 router.get("/:id", auth, userController.getUser);
-
-/**
- * @swagger
- * /api/users/profile:
- *   get:
- *     tags:
- *       - Users
- *     summary: Get current user's profile
- *     description: Retrieve the profile of the currently authenticated user
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Profile retrieved successfully
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
-router.get("/profile", auth, userController.getProfile);
 
 /**
  * @swagger
