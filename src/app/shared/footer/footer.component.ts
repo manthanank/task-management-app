@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -9,6 +9,11 @@ import { AuthService } from '../../services/auth.service';
 })
 export class FooterComponent {
   authService = inject(AuthService);
+  visitorCount = input<number>(0);
+  isVisitorCountLoading = input<boolean>(false);
+  visitorCountError = input<string | null>(null);
+  
+  currentYear = new Date().getFullYear();
   
   isLoggedIn(): boolean {
     return this.authService.isAuthenticated();

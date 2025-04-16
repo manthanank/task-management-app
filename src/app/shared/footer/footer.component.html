@@ -47,8 +47,19 @@
         </div>
         
         <div class="mt-8 pt-4 border-t border-blue-500 text-center">
-            <p class="text-sm text-gray-200">&copy; 2024 Task Management App. All rights reserved.</p>
+            <p class="text-sm text-gray-200">&copy; {{currentYear}} Task Management App. All rights reserved.</p>
             <p class="text-xs text-gray-300 mt-1">Created by <a href="https://github.com/manthanank" target="_blank" rel="noopener" class="text-blue-300 hover:underline">Manthan Ankolekar</a></p>
+            <div class="mt-4 text-center">
+                @if (isVisitorCountLoading()) {
+                    <span class="text-xs text-gray-300">Loading visitor count...</span>
+                }
+                @else if (visitorCountError()) {
+                    <span class="text-xs text-red-300">{{ visitorCountError() }}</span>
+                }
+                @else {
+                    <span class="text-xs text-gray-300">Unique Visitors: {{ visitorCount() }}</span>
+                }
+            </div>
         </div>
     </div>
 </footer>

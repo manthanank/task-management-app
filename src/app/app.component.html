@@ -3,5 +3,6 @@
     <div class="flex-grow w-full px-4 sm:px-6 lg:px-8">
         <router-outlet></router-outlet>
     </div>
-    <app-footer class="w-full mt-auto"></app-footer>
+    <app-footer class="w-full mt-auto" [visitorCount]="visitorCount()" [isVisitorCountLoading]="isVisitorCountLoading()"
+        [visitorCountError]="visitorCountError()"></app-footer>
 </div>
