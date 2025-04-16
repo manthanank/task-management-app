@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OrganizationService } from '../../../services/organization.service';
 import { Organization } from '../../../core/models/organization.model';
-import { NgClass, DatePipe, NgIf } from '@angular/common';
+import { NgClass, DatePipe } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsersService } from '../../../services/users.service';

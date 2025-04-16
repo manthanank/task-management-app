@@ -9,29 +9,38 @@
     </div>
   </div>
 
-  <div *ngIf="loading()" class="flex justify-center py-8">
-    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-  </div>
-  <div *ngIf="error()" class="text-red-500 mb-4 text-center">{{ error() }}</div>
-
-  <div *ngIf="profile() && !loading()">
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+  @else if (error()) {
+    <div class="text-red-500 mb-4 text-center">{{ error() }}</div>
+  }
+  @else if (profile()) {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
         <div class="text-xs text-gray-400 uppercase mb-1">Role</div>
         <div class="capitalize text-lg font-medium text-gray-800">{{ profile().role }}</div>
       </div>
-      <div *ngIf="profile().organization">
-        <div class="text-xs text-gray-400 uppercase mb-1">Organization</div>
-        <div class="text-lg text-gray-800">{{ profile().organization.name }}</div>
-      </div>
-      <div *ngIf="profile().organizationRole">
-        <div class="text-xs text-gray-400 uppercase mb-1">Organization Role</div>
-        <div class="text-lg text-gray-800">{{ profile().organizationRole }}</div>
-      </div>
-      <div *ngIf="profile().joinedAt">
-        <div class="text-xs text-gray-400 uppercase mb-1">Joined</div>
-        <div class="text-lg text-gray-800">{{ profile().joinedAt | date:'mediumDate' }}</div>
-      </div>
+      @if (profile().organization) {
+        <div>
+          <div class="text-xs text-gray-400 uppercase mb-1">Organization</div>
+          <div class="text-lg text-gray-800">{{ profile().organization.name }}</div>
+        </div>
+      }
+      @if (profile().organizationRole) {
+        <div>
+          <div class="text-xs text-gray-400 uppercase mb-1">Organization Role</div>
+          <div class="text-lg text-gray-800">{{ profile().organizationRole }}</div>
+        </div>
+      }
+      @if (profile().joinedAt) {
+        <div>
+          <div class="text-xs text-gray-400 uppercase mb-1">Joined</div>
+          <div class="text-lg text-gray-800">{{ profile().joinedAt | date:'mediumDate' }}</div>
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

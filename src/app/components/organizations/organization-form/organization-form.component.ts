@@ -2,11 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { OrganizationService } from '../../../services/organization.service';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-organization-form',
-  imports: [ReactiveFormsModule, RouterLink, NgClass, NgIf],
+  imports: [ReactiveFormsModule, RouterLink, NgClass],
   templateUrl: './organization-form.component.html'
 })
 export class OrganizationFormComponent {

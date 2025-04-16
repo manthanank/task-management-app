@@ -4,18 +4,18 @@
       <h1 class="text-3xl font-bold text-gray-800">Create Account</h1>
       <p class="text-gray-600 mt-2">Sign up to get started with Task Management</p>
     </div>
-    
+
     @if (error()) {
-      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r" role="alert">
-        <div class="flex">
-          <div class="py-1"><i class="fas fa-exclamation-circle"></i></div>
-          <div class="ml-3">
-            <p class="text-sm">{{ error() }}</p>
-          </div>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r" role="alert">
+      <div class="flex">
+        <div class="py-1"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="ml-3">
+          <p class="text-sm">{{ error() }}</p>
         </div>
       </div>
+    </div>
     }
-    
+
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
       <!-- Email Field -->
       <div>
@@ -25,21 +25,22 @@
             <i class="fas fa-envelope text-gray-400"></i>
           </div>
           <input id="email" type="email" formControlName="email" name="email"
-                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="you@example.com">
+            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="you@example.com">
         </div>
-        @if (registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)) {
-          <div class="text-red-500 text-sm mt-1">
-            @if (registerForm.get('email')?.errors?.['required']) {
-              <p><i class="fas fa-info-circle mr-1"></i>Email is required</p>
-            }
-            @if (registerForm.get('email')?.errors?.['email']) {
-              <p><i class="fas fa-info-circle mr-1"></i>Invalid email format</p>
-            }
-          </div>
+        @if (registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty ||
+        registerForm.get('email')?.touched)) {
+        <div class="text-red-500 text-sm mt-1">
+          @if (registerForm.get('email')?.errors?.['required']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Email is required</p>
+          }
+          @if (registerForm.get('email')?.errors?.['email']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Invalid email format</p>
+          }
+        </div>
         }
       </div>
-      
+
       <!-- Password Field -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -48,23 +49,24 @@
             <i class="fas fa-lock text-gray-400"></i>
           </div>
           <input [type]="showPassword() ? 'text' : 'password'" id="password" formControlName="password" name="password"
-                class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="••••••••">
-          <button type="button" 
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-400 hover:text-gray-600"
-                  (click)="togglePasswordVisibility()">
+            class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="••••••••">
+          <button type="button"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-400 hover:text-gray-600"
+            (click)="togglePasswordVisibility()">
             <span [ngClass]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></span>
           </button>
         </div>
-        @if (registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)) {
-          <div class="text-red-500 text-sm mt-1">
-            @if (registerForm.get('password')?.errors?.['required']) {
-              <p><i class="fas fa-info-circle mr-1"></i>Password is required</p>
-            }
-            @if (registerForm.get('password')?.errors?.['minlength']) {
-              <p><i class="fas fa-info-circle mr-1"></i>Password must be at least 6 characters</p>
-            }
-          </div>
+        @if (registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty ||
+        registerForm.get('password')?.touched)) {
+        <div class="text-red-500 text-sm mt-1">
+          @if (registerForm.get('password')?.errors?.['required']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Password is required</p>
+          }
+          @if (registerForm.get('password')?.errors?.['minlength']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Password must be at least 6 characters</p>
+          }
+        </div>
         }
       </div>
 
@@ -72,38 +74,28 @@
       <div class="bg-gray-50 p-3 rounded-md">
         <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Password must have:</h4>
         <ul class="text-xs text-gray-500 space-y-1">
-          <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>At least 6 characters</li>
-          <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>Maximum 20 characters</li>
+          <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>At least 6 characters
+          </li>
+          <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>Maximum 20 characters
+          </li>
         </ul>
       </div>
-      
+
       <!-- Role Selection -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
         <div class="flex flex-col space-y-2">
           <div class="flex items-center">
-            <input 
-              type="radio" 
-              id="role-user" 
-              formControlName="role" 
-              name="role" 
-              value="user"
-              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-              (change)="updateRoleSelection()">
+            <input type="radio" id="role-user" formControlName="role" name="role" value="user"
+              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500" (change)="updateRoleSelection()">
             <label for="role-user" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
               <span class="font-medium">Regular User</span>
               <span class="block text-xs text-gray-500">Join an existing organization</span>
             </label>
           </div>
           <div class="flex items-center">
-            <input 
-              type="radio" 
-              id="role-admin" 
-              formControlName="role" 
-              name="role" 
-              value="admin"
-              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-              (change)="updateRoleSelection()">
+            <input type="radio" id="role-admin" formControlName="role" name="role" value="admin"
+              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500" (change)="updateRoleSelection()">
             <label for="role-admin" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
               <span class="font-medium">Administrator</span>
               <span class="block text-xs text-gray-500">Create and manage your organization</span>
@@ -111,45 +103,50 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Organization Field - with dynamic required status based on role -->
       <div>
         <label for="organization" class="block text-sm font-medium text-gray-700 mb-1">
-          Organization Name <span *ngIf="isAdmin()" class="text-red-500">*</span>
+          Organization Name
+          @if (isAdmin()) {
+          <span class="text-red-500">*</span>
+          }
         </label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <i class="fas fa-building text-gray-400"></i>
           </div>
           <input type="text" id="organization" formControlName="organization" name="organization"
-                class="w-full pl-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                [placeholder]="isAdmin() ? 'Your Organization Name' : 'Your Organization (Optional)'">
+            class="w-full pl-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            [placeholder]="isAdmin() ? 'Your Organization Name' : 'Your Organization (Optional)'">
         </div>
         <p class="mt-1 text-xs text-gray-500">
-          <span *ngIf="isAdmin()">Name of the organization you want to create and manage</span>
-          <span *ngIf="!isAdmin()">Leave empty to join an existing organization later</span>
+          @if (isAdmin()) {
+          <span>Name of the organization you want to create and manage</span>}
+          @else {
+          <span>Leave empty to join an existing organization later</span>
+          }
         </p>
         @if (registerForm.get('organization')?.invalid && registerForm.get('organization')?.touched) {
-          <div class="text-red-500 text-sm mt-1">
-            @if (registerForm.get('organization')?.errors?.['required']) {
-              <p><i class="fas fa-info-circle mr-1"></i>Organization name is required for admin accounts</p>
-            }
-          </div>
+        <div class="text-red-500 text-sm mt-1">
+          @if (registerForm.get('organization')?.errors?.['required']) {
+          <p><i class="fas fa-info-circle mr-1"></i>Organization name is required for admin accounts</p>
+          }
+        </div>
         }
       </div>
-      
+
       <!-- Submit Button -->
-      <button type="submit" 
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" 
-              [disabled]="registerForm.invalid"
-              [ngClass]="{ 'opacity-50 cursor-not-allowed': registerForm.invalid }">
+      <button type="submit"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        [disabled]="registerForm.invalid" [ngClass]="{ 'opacity-50 cursor-not-allowed': registerForm.invalid }">
         <span class="mr-2">Create Account</span> <i class="fas fa-user-plus"></i>
       </button>
-      
+
       <!-- Login Link -->
       <div class="text-center mt-6">
         <p class="text-sm text-gray-600">
-          Already have an account? 
+          Already have an account?
           <a routerLink="/login" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a>
         </p>
       </div>
