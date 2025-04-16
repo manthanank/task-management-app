@@ -20,10 +20,6 @@
         <div class="text-xs text-gray-400 uppercase mb-1">Role</div>
         <div class="capitalize text-lg font-medium text-gray-800">{{ profile().role }}</div>
       </div>
-      <div>
-        <div class="text-xs text-gray-400 uppercase mb-1">Joined</div>
-        <div class="text-lg text-gray-800">{{ profile().createdAt | date:'mediumDate' }}</div>
-      </div>
       <div *ngIf="profile().organization">
         <div class="text-xs text-gray-400 uppercase mb-1">Organization</div>
         <div class="text-lg text-gray-800">{{ profile().organization.name }}</div>
@@ -33,7 +29,7 @@
         <div class="text-lg text-gray-800">{{ profile().organizationRole }}</div>
       </div>
       <div *ngIf="profile().joinedAt">
-        <div class="text-xs text-gray-400 uppercase mb-1">Joined Organization</div>
+        <div class="text-xs text-gray-400 uppercase mb-1">Joined</div>
         <div class="text-lg text-gray-800">{{ profile().joinedAt | date:'mediumDate' }}</div>
       </div>
     </div>
