@@ -11,7 +11,7 @@ import { NgClass } from '@angular/common';
 export class NavbarComponent {
   authService = inject(AuthService);
   router = inject(Router);
-  
+
   // Signal for mobile menu visibility
   showMobileMenu = signal(false);
 
@@ -25,12 +25,16 @@ export class NavbarComponent {
     return this.authService.isAdmin() && this.authService.isAuthenticated();
   }
 
+  isSuperAdmin(): boolean {
+    return this.authService.isSuper() && this.authService.isAuthenticated();
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
     this.showMobileMenu.set(false);
   }
-  
+
   toggleMobileMenu() {
     this.showMobileMenu.update(value => !value);
   }

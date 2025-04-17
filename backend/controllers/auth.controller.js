@@ -57,32 +57,32 @@ exports.register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
-    
+
     // Validate role
-    let userRole = role === 'admin' ? 'admin' : 'user';
-    
+    let userRole = (role === 'admin' || role === 'super') ? role : 'user';
+
     // If organization exists and user wants to be admin, check if org already has an admin
     if (organization && userRole === 'admin') {
       const existingOrg = await Organization.findOne({ name: organization });
       if (existingOrg) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "This organization already exists. Please join as a member instead.",
           suggestRole: 'member'
         });
       }
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ 
-      email, 
+    const newUser = new User({
+      email,
       password: hashedPassword,
       role: userRole // Set the role based on the user's selection
     });
     await newUser.save();
     const token = generateToken(newUser);
-    
+
     let orgInfo = null;
-    
+
     // If organization name is provided, create an organization (for admin users)
     if (organization && userRole === 'admin') {
       const newOrg = await Organization.create({
@@ -90,19 +90,19 @@ exports.register = async (req, res) => {
         owner: newUser._id,
         members: [{ user: newUser._id, role: 'admin' }]
       });
-      
+
       // Store the organization info for response
       orgInfo = {
         id: newOrg._id,
         name: newOrg.name,
         role: 'admin'
       };
-      
+
       // Update the user with organization reference
       await User.findByIdAndUpdate(newUser._id, {
         $set: { organization: newOrg._id }
       });
-      
+
       console.log(`Created organization ${newOrg.name} with user ${newUser.email} as admin`);
     }
     // If user is joining an existing organization (for regular users)
@@ -116,30 +116,30 @@ exports.register = async (req, res) => {
           role: 'member'
         });
         await existingOrg.save();
-        
+
         // Update user with organization reference
         await User.findByIdAndUpdate(newUser._id, {
           $set: { organization: existingOrg._id }
         });
-        
+
         orgInfo = {
           id: existingOrg._id,
           name: existingOrg.name,
           role: 'member'
         };
-        
+
         console.log(`Added user ${newUser.email} to organization ${existingOrg.name}`);
       }
     }
-    
+
     res
       .status(201)
       .json({
         token,
         expiresIn: 3600,
-        user: { 
-          _id: newUser._id, 
-          email: newUser.email, 
+        user: {
+          _id: newUser._id,
+          email: newUser.email,
           role: newUser.role,
           organization: orgInfo
         },

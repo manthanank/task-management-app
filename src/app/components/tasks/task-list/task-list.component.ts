@@ -55,14 +55,14 @@ export class TaskListComponent implements OnInit {
           this.completedTotalPages.set(response.data.totalPages || 1);
           this.completedCurrentPage.set(response.data.currentPage || 1);
           this.completedTotalTasks.set(response.data.totalTasks || 0);
-          
+
           // No need to call updateCompletedPaginatedTasks() here
           // as we're directly using the paginated data from the API
           this.completedPaginatedTasks.set(response.data.tasks || []);
         } else {
           this.completedError.set('Invalid response format from server');
         }
-        
+
         this.completedLoading.set(false);
       },
       error: (error) => {
@@ -82,13 +82,13 @@ export class TaskListComponent implements OnInit {
           this.pendingTotalPages.set(response.data.totalPages || 1);
           this.pendingCurrentPage.set(response.data.currentPage || 1);
           this.pendingTotalTasks.set(response.data.totalTasks || 0);
-          
+
           // Directly set the paginated tasks from the API response
           this.pendingPaginatedTasks.set(response.data.tasks || []);
         } else {
           this.pendingError.set('Invalid response format from server');
         }
-        
+
         this.pendingLoading.set(false);
       },
       error: (error) => {
@@ -196,12 +196,16 @@ export class TaskListComponent implements OnInit {
     this.completedLoading.set(true);
     this.pendingError.set('');
     this.completedError.set('');
-    
+
     this.loadCompletedTasks(this.completedCurrentPage(), this.completedItemsPerPage());
     this.loadPendingTasks(this.pendingCurrentPage(), this.pendingItemsPerPage());
   }
 
   isAdmin() {
     return this.auth.isAdmin();
+  }
+
+  isSuperAdmin() {
+    return this.auth.isSuper();
   }
 }

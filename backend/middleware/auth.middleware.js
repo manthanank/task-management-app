@@ -5,17 +5,17 @@ const { errorResponse } = require('../utils/response');
 const auth = (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader) {
       return errorResponse(res, 401, 'Authentication required');
     }
-    
+
     const token = authHeader.replace('Bearer ', '');
-    
+
     if (!token) {
       return errorResponse(res, 401, 'Authentication token is missing');
     }
-    
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
@@ -27,7 +27,7 @@ const auth = (req, res, next) => {
 const isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && user.role !== 'super') {
       return res.status(403).send({ error: 'Access denied' });
     }
     next();
@@ -47,7 +47,7 @@ const organizationAdmin = async (req, res, next) => {
     if (user.role !== 'admin') {
       return errorResponse(res, 403, "Access denied: Requires organization admin privileges");
     }
-    
+
     // Add organization to request object for controllers to use
     req.organization = user.organization;
     next();

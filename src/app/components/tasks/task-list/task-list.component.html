@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4 max-w-7xl">
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800">My Tasks</h2>
-        @if (isAdmin()) {
+        @if (isAdmin() || isSuperAdmin()) {
             <a routerLink="/tasks/new" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md">
                 <i class="fas fa-plus mr-2"></i> New Task
             </a>
@@ -17,7 +17,7 @@
             </div>
         </div>
     }
-    
+
     <!-- Error State -->
     @else if(completedError() || pendingError()) {
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6" role="alert">
@@ -33,7 +33,7 @@
             </div>
         </div>
     }
-    
+
     <!-- Tasks Content -->
     @else {
         <div class="md:grid md:grid-cols-2 md:gap-8">
@@ -45,7 +45,7 @@
                         <span class="ml-2 bg-white text-blue-700 text-sm py-1 px-2 rounded-full">{{ pendingTasks().length }}</span>
                     </h3>
                 </div>
-                
+
                 <div class="p-4">
                     @if(pendingLoading()) {
                         <div class="flex justify-center p-8">
@@ -58,7 +58,7 @@
                                 <i class="fas fa-check text-blue-500 text-xl"></i>
                             </div>
                             <p class="text-gray-600 mt-4">No ongoing tasks found.</p>
-                            @if (isAdmin()) {
+                            @if (isAdmin() || isSuperAdmin()) {
                                 <a routerLink="/tasks/new" class="mt-4 text-blue-500 hover:text-blue-700 underline">Create a new task</a>
                             }
                         </div>
@@ -79,9 +79,9 @@
                                                     'bg-yellow-100 text-yellow-800': task.priority === 'Medium',
                                                     'bg-green-100 text-green-800': task.priority === 'Low'
                                                 }" class="px-2 py-1 rounded text-xs font-medium">{{ task.priority }}</span>
-                                                
+
                                                 <span class="text-xs text-gray-500 mt-2">
-                                                    <i class="far fa-calendar mr-1"></i> 
+                                                    <i class="far fa-calendar mr-1"></i>
                                                     {{ task.deadline | date:'mediumDate' }}
                                                 </span>
                                             </div>
@@ -90,17 +90,17 @@
                                 </li>
                             }
                         </ul>
-                        
+
                         <!-- Pagination -->
                         @if(pendingTotalPages() > 1) {
                             <div class="flex justify-between items-center border-t pt-4 mt-4">
-                                <button (click)="previousPendingPage()" 
+                                <button (click)="previousPendingPage()"
                                         [disabled]="pendingCurrentPage() === 1"
                                         class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                     <i class="fas fa-arrow-left mr-1"></i> Previous
                                 </button>
                                 <span class="text-sm text-gray-600">Page {{ pendingCurrentPage() }} of {{ pendingTotalPages() }}</span>
-                                <button (click)="nextPendingPage()" 
+                                <button (click)="nextPendingPage()"
                                         [disabled]="pendingCurrentPage() === pendingTotalPages()"
                                         class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                     Next <i class="fas fa-arrow-right ml-1"></i>
@@ -110,7 +110,7 @@
                     }
                 </div>
             </div>
-            
+
             <!-- Completed Tasks -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-green-700 p-4">
@@ -119,7 +119,7 @@
                         <span class="ml-2 bg-white text-green-700 text-sm py-1 px-2 rounded-full">{{ completedTasks().length }}</span>
                     </h3>
                 </div>
-                
+
                 <div class="p-4">
                     @if(completedLoading()) {
                         <div class="flex justify-center p-8">
@@ -151,9 +151,9 @@
                                                     'bg-yellow-50 text-yellow-600': task.priority === 'Medium',
                                                     'bg-green-50 text-green-600': task.priority === 'Low'
                                                 }" class="px-2 py-1 rounded text-xs font-medium">{{ task.priority }}</span>
-                                                
+
                                                 <span class="text-xs text-gray-500 mt-2">
-                                                    <i class="far fa-check-circle mr-1"></i> 
+                                                    <i class="far fa-check-circle mr-1"></i>
                                                     Completed
                                                 </span>
                                             </div>
@@ -162,17 +162,17 @@
                                 </li>
                             }
                         </ul>
-                        
+
                         <!-- Pagination -->
                         @if(completedTotalPages() > 1) {
                             <div class="flex justify-between items-center border-t pt-4 mt-4">
-                                <button (click)="previousCompletedPage()" 
+                                <button (click)="previousCompletedPage()"
                                         [disabled]="completedCurrentPage() === 1"
                                         class="flex items-center text-sm text-green-600 hover:text-green-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                     <i class="fas fa-arrow-left mr-1"></i> Previous
                                 </button>
                                 <span class="text-sm text-gray-600">Page {{ completedCurrentPage() }} of {{ completedTotalPages() }}</span>
-                                <button (click)="nextCompletedPage()" 
+                                <button (click)="nextCompletedPage()"
                                         [disabled]="completedCurrentPage() === completedTotalPages()"
                                         class="flex items-center text-sm text-green-600 hover:text-green-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                     Next <i class="fas fa-arrow-right ml-1"></i>

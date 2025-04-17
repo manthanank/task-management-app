@@ -24,7 +24,7 @@ const mongoose = require("mongoose");
  *           description: ID of the organization the user belongs to
  *         role:
  *           type: string
- *           enum: [user, admin]
+ *           enum: [user, admin, super]
  *           description: User's role
  *       example:
  *         _id: 60d21b4667d0d8992e610c85
@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',
   },
-  role: { type: String, enum: ["user", "admin"], default: "user" },
+  role: { type: String, enum: ["user", "admin", "super"], default: "user" },
 });
 
 const User = mongoose.model("User", userSchema);

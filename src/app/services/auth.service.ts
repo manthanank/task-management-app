@@ -50,6 +50,11 @@ export class AuthService {
     return role === 'admin';
   }
 
+  isSuper(): boolean {
+    const role = sessionStorage.getItem('role');
+    return role === 'super';
+  }
+
   getToken(): string | null {
     return sessionStorage.getItem('token');
   }
@@ -110,7 +115,7 @@ export class AuthService {
     try {
       const token = this.getToken();
       if (!token) return null;
-      
+
       // JWT tokens are in format: header.payload.signature
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
