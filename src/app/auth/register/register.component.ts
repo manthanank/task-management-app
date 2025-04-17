@@ -54,13 +54,17 @@ export class RegisterComponent implements OnInit {
   updateRoleSelection() {
     const roleControl = this.registerForm.get('role');
     const orgNameControl = this.registerForm.get('organization');
-    
+
+    // Update signals for template
+    this.isAdmin.set(roleControl?.value === 'admin');
+
+    // Require organization for admin or super
     if (roleControl?.value === 'admin') {
       orgNameControl?.setValidators([Validators.required]);
     } else {
       orgNameControl?.clearValidators();
     }
-    
+
     orgNameControl?.updateValueAndValidity();
   }
 
@@ -73,14 +77,14 @@ export class RegisterComponent implements OnInit {
       });
       return;
     }
-    
+
     const data = {
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
       organization: this.registerForm.value.organization,
       role: this.registerForm.value.role
     };
-    
+
     this.authService.register(data).subscribe({
       next: () => {
         this.router.navigate(['/tasks']);
