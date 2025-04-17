@@ -19,6 +19,10 @@ export class UsersService {
     return this.http.get<any>(`${this.apiUrl}/organization?page=${page}&limit=${limit}`);
   }
 
+  getAllUsers(page: number = 1, limit: number = 100): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}?page=${page}&limit=${limit}`);
+  }
+
   getProfile(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/profile`);
   }

@@ -59,6 +59,10 @@ export class AuthService {
     return sessionStorage.getItem('token');
   }
 
+  getCurrentUserRole(): string | null {
+    return sessionStorage.getItem('role');
+  }
+
   logout() {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('tokenExpirationDate');

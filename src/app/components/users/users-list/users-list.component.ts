@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { UsersService } from '../../../services/users.service';
 import { User } from '../../../core/models/users.model';
 import { NgClass } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-users-list',
@@ -14,13 +15,14 @@ export class UsersListComponent implements OnInit {
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(10);
   totalPages = signal<number>(0);
-  totalUsers = signal<number>(0); // Add this signal to track total users
-  usersService = inject(UsersService);
-  error = signal<string>('');
+  totalUsers = signal<number>(0);
   loading = signal<boolean>(false);
+  error = signal<string>('');
+
   Math = Math;
 
-  constructor() {}
+  private usersService = inject(UsersService);
+  private authService = inject(AuthService);
 
   ngOnInit() {
     this.loadUsers(this.currentPage(), this.itemsPerPage());
@@ -28,7 +30,16 @@ export class UsersListComponent implements OnInit {
 
   loadUsers(page: number, limit: number) {
     this.loading.set(true);
-    this.usersService.getUsersByOrganization(page, limit).subscribe({
+    const role = this.authService.getCurrentUserRole?.() || 'admin';
+
+    let usersObservable;
+    if (role === 'super') {
+      usersObservable = this.usersService.getAllUsers(page, limit);
+    } else {
+      usersObservable = this.usersService.getUsersByOrganization(page, limit);
+    }
+
+    usersObservable.subscribe({
       next: (response) => {
         this.users.set(response?.data?.users || []);
         this.totalPages.set(response?.data?.totalPages || 1);
@@ -47,15 +58,13 @@ export class UsersListComponent implements OnInit {
 
   nextPage() {
     if (this.currentPage() < this.totalPages()) {
-      const nextPageNum = this.currentPage() + 1;
-      this.loadUsers(nextPageNum, this.itemsPerPage());
+      this.loadUsers(this.currentPage() + 1, this.itemsPerPage());
     }
   }
 
   previousPage() {
     if (this.currentPage() > 1) {
-      const prevPageNum = this.currentPage() - 1;
-      this.loadUsers(prevPageNum, this.itemsPerPage());
+      this.loadUsers(this.currentPage() - 1, this.itemsPerPage());
     }
   }
 }

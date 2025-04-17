@@ -12,11 +12,11 @@ export class OrganizationService {
   private http = inject(HttpClient);
 
   getMyOrganizations(page: number, limit: number): Observable<Organizations> {
-    return this.http.get<Organizations>(`${this.apiUrl}?page=${page}&limit=${limit}`);
+    return this.http.get<Organizations>(`${this.apiUrl}/my?page=${page}&limit=${limit}`);
   }
 
   getAllOrganizations(page: number, limit: number): Observable<Organizations> {
-    return this.http.get<Organizations>(`${this.apiUrl}/all?page=${page}&limit=${limit}`);
+    return this.http.get<Organizations>(`${this.apiUrl}?page=${page}&limit=${limit}`);
   }
 
   getOrganizationById(id: string): Observable<SingleOrganization> {
@@ -36,8 +36,8 @@ export class OrganizationService {
   }
 
   removeMember(organizationId: string, userId: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${organizationId}/members`, { 
-      body: { userId } 
+    return this.http.delete<any>(`${this.apiUrl}/${organizationId}/members`, {
+      body: { userId }
     });
   }
 

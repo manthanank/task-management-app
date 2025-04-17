@@ -14,7 +14,7 @@
             </div>
         </div>
     }
-    
+
     <!-- Error State -->
     @else if(error()) {
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6" role="alert">
@@ -30,7 +30,7 @@
             </div>
         </div>
     }
-    
+
     <!-- Users Content -->
     @else {
         <!-- Empty State -->
@@ -45,7 +45,7 @@
                 </div>
             </div>
         }
-        
+
         @else {
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-4">
@@ -59,7 +59,7 @@
                         </div>
                     </h3>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -82,12 +82,13 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full" 
-                                              [ngClass]="{
-                                                  'bg-purple-100 text-purple-800': user.role === 'admin',
-                                                  'bg-green-100 text-green-800': user.role === 'user'
-                                              }">
-                                            {{ user.role }}
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                                            [ngClass]="{
+                                              'bg-purple-100 text-purple-800': user.role === 'admin',
+                                              'bg-green-100 text-green-800': user.role === 'user',
+                                              'bg-yellow-100 text-yellow-800': user.role === 'super'
+                                            }">
+                                          {{ user.role }}
                                         </span>
                                     </td>
                                 </tr>
@@ -95,12 +96,12 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination -->
                 @if(totalPages() > 1) {
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <div class="flex justify-between items-center">
-                            <button (click)="previousPage()" 
+                            <button (click)="previousPage()"
                                     [disabled]="currentPage() === 1"
                                     class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                 <i class="fas fa-arrow-left mr-1"></i> Previous
@@ -108,7 +109,7 @@
                             <span class="text-sm text-gray-600">
                                 Showing {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ Math.min(currentPage() * itemsPerPage(), totalUsers()) }} of {{ totalUsers() }} users
                             </span>
-                            <button (click)="nextPage()" 
+                            <button (click)="nextPage()"
                                     [disabled]="currentPage() === totalPages()"
                                     class="flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
                                 Next <i class="fas fa-arrow-right ml-1"></i>
