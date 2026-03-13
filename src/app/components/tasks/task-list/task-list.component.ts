@@ -4,10 +4,12 @@ import { Task } from '../../../core/models/tasks.model';
 import { RouterLink } from '@angular/router';
 import { NgClass, DatePipe } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { DeadlineAlertPipe } from '../../../shared/pipes/deadline-alert.pipe';
 
 @Component({
     selector: 'app-task-list',
-    imports: [RouterLink, NgClass, DatePipe],
+    imports: [RouterLink, NgClass, DatePipe, DeadlineAlertPipe, FormsModule],
     templateUrl: './task-list.component.html',
 })
 export class TaskListComponent implements OnInit {
@@ -33,21 +35,29 @@ export class TaskListComponent implements OnInit {
   taskService = inject(TaskService);
   auth = inject(AuthService);
 
+  completedLoading = signal<boolean>(false);
+  pendingLoading = signal<boolean>(false);
+
   completedError = signal<string>('');
   pendingError = signal<string>('');
 
-  completedLoading = signal<boolean>(false);
-  pendingLoading = signal<boolean>(false);
+  // Search and Filter Signals
+  searchQuery = signal<string>('');
+  priorityFilter = signal<string>('');
+  sortBy = signal<string>('deadline');
+  sortOrder = signal<string>('asc');
+
+  private searchTimeout: any;
 
   constructor() {}
 
   ngOnInit() {
-    this.loadUserTasks(this.pendingCurrentPage(), this.pendingItemsPerPage());
+    this.refreshData();
   }
 
   loadCompletedTasks(page: number, limit: number) {
     this.completedLoading.set(true);
-    this.taskService.getCompletedTasks(page, limit).subscribe({
+    this.taskService.getCompletedTasks(page, limit, this.searchQuery(), this.priorityFilter()).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
           // Set the tasks directly from the response
@@ -75,7 +85,14 @@ export class TaskListComponent implements OnInit {
 
   loadPendingTasks(page: number, limit: number) {
     this.pendingLoading.set(true);
-    this.taskService.getPendingTasks(page, limit).subscribe({
+    this.taskService.getPendingTasks(
+      page, 
+      limit, 
+      this.searchQuery(), 
+      this.priorityFilter(), 
+      this.sortBy(), 
+      this.sortOrder()
+    ).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
           this.pendingTasks.set(response.data.tasks || []);
@@ -100,26 +117,29 @@ export class TaskListComponent implements OnInit {
   }
 
   loadUserTasks(page: number, limit: number) {
-    this.pendingLoading.set(true);
-    this.taskService.getUserTasks(page, limit).subscribe({
-      next: (response) => {
-        if (response.status === 'success' && response.data) {
-          this.pendingTasks.set(response.data.tasks || []);
-          this.pendingTotalPages.set(response.data.totalPages || 1);
-          this.pendingCurrentPage.set(response.data.currentPage || 1);
-          this.pendingTotalTasks.set(response.data.totalTasks || 0);
-          this.pendingPaginatedTasks.set(response.data.tasks || []);
-        } else {
-          this.pendingError.set('Invalid response format from server');
-        }
-        this.pendingLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error getting user tasks:', error);
-        this.pendingError.set('Error getting user tasks');
-        this.pendingLoading.set(false);
-      },
-    });
+    // This method is redundant if we use loadPendingTasks for all organizational tasks
+    // But keeping it consistent if specific "My Tasks" view is needed
+    this.loadPendingTasks(page, limit);
+  }
+
+  onFilterChange() {
+    this.pendingCurrentPage.set(1);
+    this.completedCurrentPage.set(1);
+    this.refreshData();
+  }
+
+  onSearchChange() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.onFilterChange();
+    }, 400); // 400ms debounce
+  }
+
+  toggleSortOrder() {
+    this.sortOrder.set(this.sortOrder() === 'asc' ? 'desc' : 'asc');
+    this.onFilterChange();
   }
 
   // These methods are not currently needed since we're using server-side pagination
@@ -207,5 +227,11 @@ export class TaskListComponent implements OnInit {
 
   isSuperAdmin() {
     return this.auth.isSuper();
+  }
+
+  getSubtaskProgress(task: Task): string {
+    if (!task.subtasks || task.subtasks.length === 0) return '';
+    const completed = task.subtasks.filter(s => s.completed).length;
+    return `${completed}/${task.subtasks.length} subtasks`;
   }
 }

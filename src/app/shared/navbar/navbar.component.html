@@ -11,6 +11,10 @@
 
             <div class="flex items-center space-x-6">
                 @if (isLoggedIn()) {
+                <a routerLink="/dashboard" class="text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-chart-line mr-1"></i> Dashboard
+                </a>
+
                 <a routerLink="/tasks" class="text-white hover:text-blue-200 transition-colors duration-200">
                     <i class="fas fa-list-check mr-1"></i> My Tasks
                 </a>

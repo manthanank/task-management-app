@@ -12,7 +12,14 @@ export interface Data {
   priority: string
   completed: boolean
   user: User
+  subtasks?: Subtask[];
   __v: number
+}
+
+export interface Subtask {
+  _id?: string;
+  title: string;
+  completed: boolean;
 }
 
 export interface User {

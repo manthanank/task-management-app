@@ -6,17 +6,15 @@
     </div>
 
     <!-- Loading State -->
-    @if(loading()) {
+    @if (loading()) {
         <div class="bg-white rounded-xl shadow-md p-12 flex justify-center">
             <div class="flex flex-col items-center">
                 <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="mt-4 text-gray-600">Loading task details...</p>
             </div>
         </div>
-    }
-
-    <!-- Error State -->
-    @else if(error()) {
+    } @else if (error()) {
+        <!-- Error State -->
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
             <div class="flex">
                 <div class="flex-shrink-0">
@@ -29,126 +27,204 @@
                 </div>
             </div>
         </div>
-    }
+    } @else {
+        <!-- Task Details -->
+        @let currentTask = task();
+        @if (currentTask) {
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <!-- Task Header -->
+                <div class="bg-gradient-to-r" 
+                     [ngClass]="{
+                        'from-green-500 to-green-700': currentTask.completed,
+                        'from-blue-500 to-blue-700': !currentTask.completed
+                     }">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h1 class="text-2xl font-bold text-white" [ngClass]="{'line-through': currentTask.completed}">{{ currentTask.title }}</h1>
+                                <div class="flex items-center mt-2">
+                                    <span class="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                        <i class="far fa-calendar-alt mr-1"></i> {{ currentTask.deadline | date:'mediumDate' }}
+                                    </span>
+                                    
+                                    <span class="ml-2 text-xs font-medium px-2 py-1 rounded-full" 
+                                          [ngClass]="{
+                                            'bg-red-100 text-red-800': currentTask.priority === 'High',
+                                            'bg-yellow-100 text-yellow-800': currentTask.priority === 'Medium',
+                                            'bg-green-100 text-green-800': currentTask.priority === 'Low'
+                                          }">
+                                        {{ currentTask.priority }} Priority
+                                    </span>
 
-    <!-- Task Details -->
-    @else {
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <!-- Task Header -->
-            <div class="bg-gradient-to-r" 
-                 [ngClass]="{
-                    'from-green-500 to-green-700': task()?.completed,
-                    'from-blue-500 to-blue-700': !task()?.completed
-                 }">
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h1 class="text-2xl font-bold text-white" [ngClass]="{'line-through': task()?.completed}">{{ task()?.title }}</h1>
-                            <div class="flex items-center mt-2">
-                                <span class="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                    <i class="far fa-calendar-alt mr-1"></i> {{ task()?.deadline | date:'mediumDate' }}
-                                </span>
-                                
-                                <span class="ml-2 text-xs font-medium px-2 py-1 rounded-full" 
+                                    @if (!currentTask.completed) {
+                                        @let alert = (currentTask.deadline | deadlineAlert);
+                                        @if (alert) {
+                                            <span [ngClass]="alert.colorClass" class="ml-2 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg border border-white/20">
+                                                <i class="fas fa-clock mr-1"></i> {{ alert.text }}
+                                            </span>
+                                        }
+                                    }
+                                    
+                                    <span class="ml-2 bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
+                                        <i class="far fa-user mr-1"></i> {{ getUserEmail(currentTask.user) }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <span class="bg-white text-sm font-medium px-3 py-1 rounded-full" 
                                       [ngClass]="{
-                                        'bg-red-100 text-red-800': task()?.priority === 'High',
-                                        'bg-yellow-100 text-yellow-800': task()?.priority === 'Medium',
-                                        'bg-green-100 text-green-800': task()?.priority === 'Low'
+                                        'text-green-700': currentTask.completed,
+                                        'text-blue-700': !currentTask.completed
                                       }">
-                                    {{ task()?.priority }} Priority
-                                </span>
-                                
-                                <span class="ml-2 bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
-                                    <i class="far fa-user mr-1"></i> {{ task()?.user?.email || 'Unassigned' }}
+                                    <i class="fas" [ngClass]="{
+                                        'fa-check-circle': currentTask.completed,
+                                        'fa-clock': !currentTask.completed
+                                    }"></i>
+                                    {{ currentTask.completed ? 'Completed' : 'In Progress' }}
                                 </span>
                             </div>
                         </div>
-                        
-                        <div>
-                            <span class="bg-white text-sm font-medium px-3 py-1 rounded-full" 
-                                  [ngClass]="{
-                                    'text-green-700': task()?.completed,
-                                    'text-blue-700': !task()?.completed
-                                  }">
-                                <i class="fas" [ngClass]="{
-                                    'fa-check-circle': task()?.completed,
-                                    'fa-clock': !task()?.completed
-                                }"></i>
-                                {{ task()?.completed ? 'Completed' : 'In Progress' }}
-                            </span>
+                    </div>
+                </div>
+                
+                <!-- Task Content -->
+                <div class="p-6">
+                    <div class="mb-8">
+                        <h2 class="text-lg font-medium text-gray-800 mb-2">Description</h2>
+                        <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                            {{ currentTask.description || 'No description provided' }}
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Task Content -->
-            <div class="p-6">
-                <div class="mb-8">
-                    <h2 class="text-lg font-medium text-gray-800 mb-2">Description</h2>
-                    <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
-                        {{ task()?.description || 'No description provided' }}
+
+                    <!-- Subtasks Checklist -->
+                    <div class="mb-8 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-tasks mr-2 text-blue-500"></i>
+                                Subtasks Checklist 
+                            </h2>
+                            <span class="text-xs font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                                {{ getCompletedSubtasksCount() }}/{{ getTotalSubtasksCount() }} COMPLETED
+                            </span>
+                        </div>
+
+                        @if (currentTask.subtasks && currentTask.subtasks.length > 0) {
+                            <div class="space-y-2">
+                                @for (subtask of currentTask.subtasks; track subtask._id || $index) {
+                                    <div 
+                                        (click)="toggleSubtask(subtask)"
+                                        class="flex items-center p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                                        [ngClass]="{'opacity-75': subtask.completed}"
+                                    >
+                                        <div class="h-5 w-5 flex-shrink-0 rounded-full border-2 flex items-center justify-center transition-all"
+                                             [ngClass]="{
+                                                'bg-blue-600 border-blue-600 ring-4 ring-blue-50': subtask.completed, 
+                                                'bg-white border-gray-300 group-hover:border-blue-400': !subtask.completed
+                                             }">
+                                            @if (subtask.completed) {
+                                                <i class="fas fa-check text-[10px] text-white"></i>
+                                            }
+                                        </div>
+                                        <span class="ml-4 text-sm font-medium transition-all" 
+                                              [ngClass]="{'line-through text-gray-400': subtask.completed, 'text-gray-700': !subtask.completed}">
+                                            {{ subtask.title }}
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        } @else {
+                            <div class="bg-gray-50/50 border-2 border-dashed border-gray-100 rounded-lg p-6 text-center">
+                                <i class="fas fa-clipboard-list text-gray-200 text-3xl mb-2 block"></i>
+                                <p class="text-gray-400 text-sm italic">No subtasks added for this task.</p>
+                            </div>
+                        }
                     </div>
-                </div>
-                
-                <!-- Updated Button Section -->
-                <div class="flex flex-wrap gap-4">
-                    @if(!task()?.completed) {
+                    
+                    <!-- Updated Button Section -->
+                    <div class="flex flex-wrap gap-4">
+                        @if (!currentTask.completed) {
+                            <button 
+                                (click)="completeTask()" 
+                                [disabled]="loading()"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
+                            >
+                                <i class="fas" [ngClass]="{'fa-check-circle': !loading(), 'fa-spinner fa-spin': loading()}"></i> 
+                                <span class="ml-2">{{ loading() ? 'Updating...' : 'Mark as Complete' }}</span>
+                            </button>
+                        }
                         <button 
-                            (click)="completeTask()" 
-                            [disabled]="loading()"
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
+                            (click)="editTask()"
+                            [disabled]="loading() || deleting()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                         >
-                            <i class="fas" [ngClass]="{'fa-check-circle': !loading(), 'fa-spinner fa-spin': loading()}"></i> 
-                            <span class="ml-2">{{ loading() ? 'Updating...' : 'Mark as Complete' }}</span>
+                            <i class="fas fa-edit mr-2"></i> Edit Task
                         </button>
-                    }
-                    <button 
-                        (click)="editTask()"
-                        [disabled]="loading() || deleting()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-                    >
-                        <i class="fas fa-edit mr-2"></i> Edit Task
-                    </button>
-                    <button 
-                        (click)="deleteTask()"
-                        [disabled]="deleting() || loading()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
-                    >
-                        <i class="fas" [ngClass]="{'fa-trash-alt': !deleting(), 'fa-spinner fa-spin': deleting()}"></i>
-                        <span class="ml-2">{{ deleting() ? 'Deleting...' : 'Delete Task' }}</span>
-                    </button>
-                </div>
-                
-                <!-- Task Timeline -->
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">Task Timeline</h3>
-                    <div class="relative">
-                        <div class="absolute top-0 bottom-0 left-3.5 w-1 bg-gray-200"></div>
-                        <ul class="space-y-4 relative">
-                            <li class="flex gap-4">
-                                <div class="bg-blue-100 h-8 w-8 rounded-full flex items-center justify-center z-10">
-                                    <i class="fas fa-plus text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-900">Task Created</h4>
-                                    <p class="text-xs text-gray-500">{{ task()?.createdAt | date:'medium' }}</p>
-                                </div>
-                            </li>
-                            @if(task()?.completed) {
-                                <li class="flex gap-4">
-                                    <div class="bg-green-100 h-8 w-8 rounded-full flex items-center justify-center z-10">
-                                        <i class="fas fa-check text-green-600"></i>
+                        <button 
+                            (click)="deleteTask()"
+                            [disabled]="deleting() || loading()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
+                        >
+                            <i class="fas" [ngClass]="{'fa-trash-alt': !deleting(), 'fa-spinner fa-spin': deleting()}"></i>
+                            <span class="ml-2">{{ deleting() ? 'Deleting...' : 'Delete Task' }}</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Activity History -->
+                    <div class="mt-12 pt-8 border-t border-gray-100">
+                        <h3 class="text-xl font-black text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-history mr-3 text-blue-500"></i> Audit Trail & History
+                        </h3>
+                        
+                        @if (activities().length > 0) {
+                            <div class="space-y-6 relative before:absolute before:inset-0 before:left-3 before:w-0.5 before:bg-gray-100 before:content-['']">
+                                @for (activity of activities(); track activity._id) {
+                                    <div class="relative pl-10">
+                                        <div 
+                                            class="absolute left-0 top-1 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center shadow-sm"
+                                            [ngClass]="{
+                                                'bg-blue-500': activity.action === 'created',
+                                                'bg-green-500': activity.action === 'status_changed' && activity.details.includes('completed'),
+                                                'bg-yellow-500': activity.action === 'status_changed' && !activity.details.includes('completed'),
+                                                'bg-indigo-500': activity.action === 'subtask_toggled',
+                                                'bg-gray-400': activity.action === 'updated'
+                                            }"
+                                        >
+                                            <i class="fas text-[10px] text-white" 
+                                               [ngClass]="{
+                                                    'fa-plus': activity.action === 'created',
+                                                    'fa-check': activity.action === 'status_changed' && activity.details.includes('completed'),
+                                                    'fa-undo': activity.action === 'status_changed' && !activity.details.includes('completed'),
+                                                    'fa-tasks': activity.action === 'subtask_toggled',
+                                                    'fa-pen-fancy': activity.action === 'updated'
+                                               }">
+                                            </i>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-4 hover:bg-gray-100 transition-colors">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <p class="text-xs font-black uppercase tracking-widest text-gray-400">{{ activity.action | replace:'_':' ' }}</p>
+                                                <p class="text-[10px] font-bold text-gray-400">{{ activity.createdAt | date:'MMM d, h:mm a' }}</p>
+                                            </div>
+                                            <p class="text-sm font-bold text-gray-800 leading-tight mb-1">{{ activity.details }}</p>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                                                    <i class="fas fa-user text-[8px] text-blue-600"></i>
+                                                </div>
+                                                <span class="text-[11px] font-medium text-blue-600/70">{{ getUserEmail(activity.user) }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="text-sm font-medium text-gray-900">Task Completed</h4>
-                                        <p class="text-xs text-gray-500">{{ task()?.updatedAt | date:'medium' }}</p>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
+                                }
+                            </div>
+                        } @else {
+                            <div class="text-center py-10 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                <i class="fas fa-ghost text-3xl text-gray-200 mb-3 block"></i>
+                                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">No activity logged yet</p>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
+        }
     }
 </div>

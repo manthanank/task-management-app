@@ -96,7 +96,7 @@ This is a full-stack task management application built using Angular, Node.js, E
 
 ### Auth
 
-- **POST /api/auth/signup**: Create a new user
+- **POST /api/auth/register**: Create a new user
 - **POST /api/auth/login**: Authenticate a user and get a token
 - **POST /api/auth/forgot-password**: Send password reset email
 - **POST /api/auth/reset-password/:token**: Reset user password
@@ -110,8 +110,8 @@ This is a full-stack task management application built using Angular, Node.js, E
 
 ## Usage
 
-1. **Sign Up**: Create a new account by navigating to the sign-up page.
-2. **Log In**: Log in with your credentials to access the expense tracker.
+1. **Register**: Create a new account by navigating to the register page.
+2. **Log In**: Log in with your credentials to access the task management app.
 3. **Forgot Password**: If you forget your password, use the forgot password link to reset it.
 4. **Reset Password**: Follow the instructions in the reset password email to set a new password.
 5. **Add Task**: Click on the add task button to create a new task. Fill in the details and click save.

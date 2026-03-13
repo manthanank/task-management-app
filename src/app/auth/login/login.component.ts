@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
     selector: 'app-login',
@@ -25,6 +26,7 @@ export class LoginComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private notificationService = inject(NotificationService);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -66,12 +68,15 @@ export class LoginComponent {
 
   private handleLoginSuccess(): void {
     this.setLoadingState(false);
+    this.notificationService.success('Welcome back! You have successfully logged in.', 'Login Successful');
     this.router.navigate(['/tasks']);
   }
 
   private handleLoginError(err: any): void {
     this.setLoadingState(false);
     console.error(err);
-    this.error.set(err?.error?.message || 'An error occurred');
+    const msg = err?.error?.message || 'Invalid credentials. Please try again.';
+    this.error.set(msg);
+    this.notificationService.error(msg, 'Login Failed');
   }
 }

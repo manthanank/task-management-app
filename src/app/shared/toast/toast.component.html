@@ -1,0 +1,43 @@
+<div class="fixed top-20 right-4 z-[9999] flex flex-col gap-3 w-full max-w-sm">
+    @for (toast of toasts(); track toast.id) {
+        <div 
+            [ngClass]="getColorClass(toast.type)"
+            class="group relative flex items-start p-4 rounded-2xl border shadow-xl shadow-gray-200/50 backdrop-blur-sm animate-[slideIn_0.3s_ease-out] transition-all"
+        >
+            <div class="flex-shrink-0 mt-0.5">
+                <i class="fas" [ngClass]="[getIcon(toast.type), getIconColorClass(toast.type)]" class="text-xl"></i>
+            </div>
+            <div class="ml-3 flex-1 overflow-hidden">
+                @if (toast.title) {
+                    <p class="text-sm font-black uppercase tracking-wider mb-0.5">{{ toast.title }}</p>
+                }
+                <p class="text-sm font-medium leading-relaxed opacity-90">{{ toast.message }}</p>
+            </div>
+            <button 
+                (click)="remove(toast.id)"
+                class="ml-3 flex-shrink-0 flex items-center justify-center p-1 rounded-full hover:bg-black/5 transition-colors"
+            >
+                <i class="fas fa-times text-xs opacity-50 group-hover:opacity-100"></i>
+            </button>
+            <div class="absolute bottom-0 left-0 h-1 bg-current opacity-20 animate-[progress_5s_linear_forwards]"></div>
+        </div>
+    }
+</div>
+
+<style>
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+</style>

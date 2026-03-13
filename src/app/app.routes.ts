@@ -9,6 +9,12 @@ export const routes: Routes = [
       import('./components/home/home.component').then((m) => m.HomeComponent),
   },
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./auth/register/register.component').then(

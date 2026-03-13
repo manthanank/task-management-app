@@ -21,7 +21,14 @@ export interface Task {
   user: User | string
   createdAt?: string
   updatedAt?: string
+  subtasks?: Subtask[];
   __v: number
+}
+
+export interface Subtask {
+  _id?: string;
+  title: string;
+  completed: boolean;
 }
 
 export interface User {

@@ -5,10 +5,11 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
 import { Meta } from '@angular/platform-browser';
 import { TrackService } from './services/track.service';
 import { Visit } from './core/models/visit.model';
+import { ToastComponent } from './shared/toast/toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, FooterComponent, NavbarComponent],
+  imports: [RouterOutlet, FooterComponent, NavbarComponent, ToastComponent],
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {

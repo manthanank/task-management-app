@@ -20,12 +20,12 @@ export class TaskService {
     return this.http.get<Tasks>(this.apiUrl);
   }
 
-  getCompletedTasks(page: number, limit: number): Observable<Tasks> {
-    return this.http.get<Tasks>(`${this.apiUrl}/completed?page=${page}&limit=${limit}`);
+  getCompletedTasks(page: number, limit: number, search: string = '', priority: string = ''): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.apiUrl}/completed?page=${page}&limit=${limit}&search=${search}&priority=${priority}`);
   }
 
-  getPendingTasks(page: number, limit: number): Observable<Tasks> {
-    return this.http.get<Tasks>(`${this.apiUrl}/ongoing?page=${page}&limit=${limit}`);
+  getPendingTasks(page: number, limit: number, search: string = '', priority: string = '', sortBy: string = 'deadline', order: string = 'asc'): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.apiUrl}/ongoing?page=${page}&limit=${limit}&search=${search}&priority=${priority}&sortBy=${sortBy}&order=${order}`);
   }
 
   getUserTasks(page: number, limit: number): Observable<Tasks> {
@@ -47,5 +47,13 @@ export class TaskService {
     });
     
     return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers });
+  }
+
+  getTaskStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/summary/stats`);
+  }
+
+  getTaskActivities(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/activities`);
   }
 }

@@ -261,4 +261,46 @@ router.put("/:id", auth, taskController.updateTask);
  */
 router.delete("/:id", auth, taskController.deleteTask);
 
+/**
+ * @swagger
+ * /api/tasks/stats:
+ *  get:
+ *    tags:
+ *      - Tasks
+ *    summary: Get task statistics
+ *    description: Retrieves aggregated stats for tasks (organization-wide)
+ *    security:
+ *      - bearerAuth: []
+ *    responses:
+ *      200:
+ *        description: Stats retrieved successfully
+ *      500:
+ *        description: Server error
+ */
+router.get("/summary/stats", auth, taskController.getTaskStats);
+
+/**
+ * @swagger
+ * /api/tasks/{id}/activities:
+ *  get:
+ *    tags:
+ *      - Tasks
+ *    summary: Get task activity log
+ *    description: Retrieves the history of changes for a specific task
+ *    security:
+ *      - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: Activities retrieved successfully
+ *      500:
+ *        description: Server error
+ */
+router.get("/:id/activities", auth, taskController.getTaskActivities);
+
 module.exports = router;

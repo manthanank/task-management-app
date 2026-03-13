@@ -1,5 +1,6 @@
 const Task = require("../models/task.model");
 const User = require("../models/user.model");
+const Activity = require("../models/activity.model");
 const { successResponse, errorResponse } = require("../utils/response");
 
 // Create a new task
@@ -22,6 +23,16 @@ exports.createTask = async (req, res) => {
       organization: assignedUser.organization
     });
     await newTask.save();
+
+    // Log activity
+    await new Activity({
+      task: newTask._id,
+      user: req.user._id,
+      action: "created",
+      details: `Task created and assigned to ${assignedUser.email}`,
+      organization: assignedUser.organization
+    }).save();
+
     successResponse(res, 201, "Task created successfully");
   } catch (error) {
     errorResponse(res, 500, error.message);
@@ -68,6 +79,10 @@ exports.getOngoingTasks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
+    const priority = req.query.priority || "";
+    const sortBy = req.query.sortBy || "deadline";
+    const order = req.query.order === "desc" ? -1 : 1;
 
     // Get user's organization
     const user = await User.findById(req.user._id);
@@ -75,18 +90,34 @@ exports.getOngoingTasks = async (req, res) => {
       return errorResponse(res, 400, "User is not associated with any organization");
     }
 
-    const tasks = await Task.find({ 
+    // Build filter object
+    const filter = { 
       completed: false,
       organization: user.organization 
-    })
+    };
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = order;
+
+    const tasks = await Task.find(filter)
     .populate('user', 'email')
+    .sort(sort)
     .skip(skip)
     .limit(limit);
     
-    const totalTasks = await Task.countDocuments({ 
-      completed: false,
-      organization: user.organization 
-    });
+    const totalTasks = await Task.countDocuments(filter);
 
     successResponse(res, 200, "Ongoing tasks retrieved successfully", {
       tasks,
@@ -105,6 +136,8 @@ exports.getCompletedTasks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
+    const priority = req.query.priority || "";
 
     // Get user's organization
     const user = await User.findById(req.user._id);
@@ -112,19 +145,30 @@ exports.getCompletedTasks = async (req, res) => {
       return errorResponse(res, 400, "User is not associated with any organization");
     }
 
-    const tasks = await Task.find({ 
+    // Build filter object
+    const filter = { 
       completed: true,
       organization: user.organization 
-    })
+    };
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    const tasks = await Task.find(filter)
       .sort({ updatedAt: -1 })  // Sort by most recently updated first
       .populate('user', 'email')
       .skip(skip)
       .limit(limit);
       
-    const totalTasks = await Task.countDocuments({ 
-      completed: true,
-      organization: user.organization 
-    });
+    const totalTasks = await Task.countDocuments(filter);
 
     // Ensure we're sending back the proper metadata
     successResponse(res, 200, "Completed tasks retrieved successfully", {
@@ -192,6 +236,18 @@ exports.updateTask = async (req, res) => {
       });
     }
     
+    // Determine action and details for logging
+    let action = "updated";
+    let details = "Task details updated";
+
+    if (req.body.completed !== undefined && req.body.completed !== task.completed) {
+      action = "status_changed";
+      details = req.body.completed ? "Task marked as completed" : "Task marked as ongoing";
+    } else if (req.body.subtasks) {
+      action = "subtask_toggled";
+      details = "Checklist updated";
+    }
+
     // Update with the data from the request
     const updatedTask = await Task.findByIdAndUpdate(
       id, 
@@ -199,6 +255,15 @@ exports.updateTask = async (req, res) => {
       { new: true } // Return the updated document
     ).populate('user', 'email'); // Populate user info
     
+    // Log activity
+    await new Activity({
+      task: updatedTask._id,
+      user: req.user._id,
+      action: action,
+      details: details,
+      organization: task.organization
+    }).save();
+
     return res.status(200).json({
       status: 'success',
       message: 'Task updated successfully',
@@ -230,10 +295,71 @@ exports.deleteTask = async (req, res) => {
       return errorResponse(res, 403, "Not authorized to delete this task");
     }
     
+    // Log activity
+    await new Activity({
+      task: id,
+      user: req.user._id,
+      action: "deleted",
+      details: `Task "${task.title}" was deleted`,
+      organization: task.organization
+    }).save();
+
     // Delete the task
     await Task.findByIdAndDelete(id);
     
     successResponse(res, 200, "Task deleted successfully");
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get task statistics
+exports.getTaskStats = async (req, res) => {
+  try {
+    // Get user's organization
+    const user = await User.findById(req.user._id);
+    if (!user.organization) {
+      return errorResponse(res, 400, "User is not associated with any organization");
+    }
+
+    const stats = await Task.aggregate([
+      { $match: { organization: user.organization } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          completed: { $sum: { $cond: ["$completed", 1, 0] } },
+          pending: { $sum: { $cond: ["$completed", 0, 1] } },
+          highPriority: { $sum: { $cond: [{ $eq: ["$priority", "High"] }, 1, 0] } },
+          mediumPriority: { $sum: { $cond: [{ $eq: ["$priority", "Medium"] }, 1, 0] } },
+          lowPriority: { $sum: { $cond: [{ $eq: ["$priority", "Low"] }, 1, 0] } }
+        }
+      }
+    ]);
+
+    const result = stats.length > 0 ? stats[0] : {
+      total: 0,
+      completed: 0,
+      pending: 0,
+      highPriority: 0,
+      mediumPriority: 0,
+      lowPriority: 0
+    };
+
+    successResponse(res, 200, "Stats retrieved successfully", result);
+  } catch (error) {
+    errorResponse(res, 500, error.message);
+  }
+};
+
+// Get activity log for a task
+exports.getTaskActivities = async (req, res) => {
+  try {
+    const activities = await Activity.find({ task: req.params.id })
+      .populate("user", "email")
+      .sort({ createdAt: -1 });
+
+    successResponse(res, 200, "Activities retrieved successfully", activities);
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
