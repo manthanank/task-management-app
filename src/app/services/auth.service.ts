@@ -46,7 +46,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     const role = sessionStorage.getItem('role');
-    return role === 'admin';
+    return role === 'admin' || role === 'super';
   }
 
   isSuper(): boolean {
@@ -84,11 +84,12 @@ export class AuthService {
     });
   }
 
-  private handleAuthentication(token: string, expiresIn: number, role: string, organization?: string) {
+  private handleAuthentication(token: string, expiresIn: number, role: string, organization?: any) {
+    const orgString = typeof organization === 'object' && organization ? JSON.stringify(organization) : (organization || '');
     const user = { token, expiresIn, role, organization };
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     sessionStorage.setItem('token', token);
-    sessionStorage.setItem('organization', organization || '');
+    sessionStorage.setItem('organization', orgString);
     sessionStorage.setItem('user', JSON.stringify(user));
     sessionStorage.setItem('tokenExpirationDate', expirationDate.toISOString());
     sessionStorage.setItem('role', role);
@@ -135,5 +136,3 @@ export class AuthService {
     sessionStorage.setItem('user', JSON.stringify(user));
   }
 }
-
-

@@ -47,11 +47,11 @@ export class OrganizationListComponent implements OnInit {
           this.totalOrganizations.set(response?.data?.totalOrganizations || 0);
         } else {
           // Handle single organization response (not paginated)
-          const org = response?.organization || response?.data?.organization;
-          this.organizations.set(org ? [org] : []);
+          const org = response?.data?.organization || response?.data || response?.organization;
+          this.organizations.set(org && (org._id || org.name) ? [org] : []);
           this.totalPages.set(1);
           this.currentPage.set(1);
-          this.totalOrganizations.set(org ? 1 : 0);
+          this.totalOrganizations.set(org && (org._id || org.name) ? 1 : 0);
         }
         this.loading.set(false);
       },

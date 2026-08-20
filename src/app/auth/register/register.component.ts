@@ -34,8 +34,8 @@ export class RegisterComponent implements OnInit {
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [
         Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(20),
+        Validators.minLength(8),
+        Validators.maxLength(64),
       ]),
       organization: new FormControl(''),
       role: new FormControl('user', Validators.required)
@@ -58,7 +58,7 @@ export class RegisterComponent implements OnInit {
     // Update signals for template
     this.isAdmin.set(roleControl?.value === 'admin');
 
-    // Require organization for admin or super
+    // Require organization for admin
     if (roleControl?.value === 'admin') {
       orgNameControl?.setValidators([Validators.required]);
     } else {
@@ -78,11 +78,15 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
+    const role = this.registerForm.value.role;
+    const orgName = this.registerForm.value.organization?.trim() || '';
+
     const data = {
-      email: this.registerForm.value.email,
+      email: this.registerForm.value.email.trim(),
       password: this.registerForm.value.password,
-      organization: this.registerForm.value.organization,
-      role: this.registerForm.value.role
+      organization: orgName,
+      role: role,
+      createOrg: role === 'admin' && !!orgName
     };
 
     this.authService.register(data).subscribe({

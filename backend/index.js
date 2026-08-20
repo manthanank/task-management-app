@@ -13,6 +13,9 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// Set trust proxy for reverse proxies (e.g. Vercel)
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
@@ -31,17 +34,27 @@ app.use(express.json());
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+  message: { status: 'error', message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
-  message: { message: 'Too many auth requests from this IP, please try again after 15 minutes' }
+  message: { status: 'error', message: 'Too many auth requests from this IP, please try again after 15 minutes' }
 });
 
 app.use('/api/auth', authLimiter);
 app.use('/api', apiLimiter);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Task Management API is healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
 
 // Swagger documentation options
 const swaggerOptions = {
@@ -61,13 +74,35 @@ app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/organizations', require('./routes/organization.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 
-app.get('', (req, res) => {
-    res.send('API is running... <br><a href="/api-docs">View API Documentation</a>');
+app.get('/', (req, res) => {
+  res.send('API is running... <br><a href="/api-docs">View API Documentation</a>');
 });
 
-// Start server
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: `Cannot ${req.method} ${req.originalUrl}`
+  });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err);
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error'
+  });
+});
+
+// Start server if run directly
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+if (require.main === module) {
+  app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
-});
+  });
+}
+
+// Export for serverless environments (Vercel)
+module.exports = app;

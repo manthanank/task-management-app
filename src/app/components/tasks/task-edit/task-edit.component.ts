@@ -65,12 +65,21 @@ export class TaskEditComponent implements OnInit {
     this.taskService.getTaskById(this.taskId).subscribe({
       next: (response) => {
         const task = response.data;
+        let deadlineFormatted = '';
+        if (task.deadline) {
+          try {
+            deadlineFormatted = new Date(task.deadline).toISOString().split('T')[0];
+          } catch (e) {
+            deadlineFormatted = '';
+          }
+        }
+
         this.taskForm.patchValue({
           title: task.title,
           description: task.description,
-          deadline: new Date(task.deadline).toISOString().split('T')[0],
+          deadline: deadlineFormatted,
           priority: task.priority,
-          userId: task.user._id,
+          userId: task.user?._id || task.user || '',
         });
 
         if (task.subtasks && task.subtasks.length > 0) {

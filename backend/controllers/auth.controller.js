@@ -5,55 +5,10 @@ const Organization = require("../models/organization.model");
 const { generateToken, successResponse, errorResponse } = require("../utils/response");
 const { sendPasswordResetEmail } = require("../utils/email");
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     AuthResponse:
- *       type: object
- *       properties:
- *         token:
- *           type: string
- *           description: JWT authentication token
- *         expiresIn:
- *           type: integer
- *           description: Token expiration in seconds
- *         user:
- *           type: object
- *           properties:
- *             _id:
- *               type: string
- *               description: User ID
- *             email:
- *               type: string
- *               description: User email
- *             role:
- *               type: string
- *               description: User role
- *             organization:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                   description: Organization ID
- *                 name:
- *                   type: string
- *                   description: Organization name
- *                 role:
- *                   type: string
- *                   description: User's role in the organization
- *         success:
- *           type: boolean
- *           description: Success status
- *         message:
- *           type: string
- *           description: Response message
- */
-
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { email, password, organization, createOrg } = req.body;
+    const { email, password, organization, role, createOrg } = req.body;
     if (!email || !password) {
       return errorResponse(res, 400, "Email and password are required");
     }
@@ -62,85 +17,96 @@ exports.register = async (req, res) => {
       return errorResponse(res, 400, "Password must be at least 8 characters");
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return errorResponse(res, 400, "User already exists");
     }
 
+    const shouldCreateOrg = createOrg === true || role === 'admin';
+    let targetOrg = null;
+
+    if (organization && organization.trim()) {
+      const orgName = organization.trim();
+      const existingOrg = await Organization.findOne({ name: orgName });
+
+      if (shouldCreateOrg) {
+        if (existingOrg) {
+          return errorResponse(res, 400, "This organization already exists. Please join as a member instead.");
+        }
+      } else {
+        if (existingOrg) {
+          targetOrg = existingOrg;
+        }
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+    const initialRole = shouldCreateOrg ? 'admin' : 'user';
+
     const newUser = new User({
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
-      role: 'user'
+      role: initialRole
     });
+
     await newUser.save();
-    const token = generateToken(newUser);
 
     let orgInfo = null;
-    let userRole = 'user';
 
-    if (organization && createOrg) {
-      const existingOrg = await Organization.findOne({ name: organization });
-      if (existingOrg) {
-        return res.status(400).json({
-          message: "This organization already exists. Please join as a member instead.",
-          suggestRole: 'member'
+    if (organization && organization.trim()) {
+      const orgName = organization.trim();
+      if (shouldCreateOrg) {
+        const newOrg = await Organization.create({
+          name: orgName,
+          owner: newUser._id,
+          members: [{ user: newUser._id, role: 'admin' }]
         });
-      }
-
-      const newOrg = await Organization.create({
-        name: organization,
-        owner: newUser._id,
-        members: [{ user: newUser._id, role: 'admin' }]
-      });
-
-      userRole = 'admin';
-      await User.findByIdAndUpdate(newUser._id, {
-        $set: { organization: newOrg._id, role: 'admin' }
-      });
-
-      orgInfo = {
-        id: newOrg._id,
-        name: newOrg.name,
-        role: 'admin'
-      };
-    } else if (organization) {
-      const existingOrg = await Organization.findOne({ name: organization });
-      if (existingOrg) {
-        existingOrg.members.push({
-          user: newUser._id,
-          role: 'member'
-        });
-        await existingOrg.save();
 
         await User.findByIdAndUpdate(newUser._id, {
-          $set: { organization: existingOrg._id }
+          $set: { organization: newOrg._id, role: 'admin' }
         });
 
         orgInfo = {
-          id: existingOrg._id,
-          name: existingOrg.name,
+          id: newOrg._id,
+          name: newOrg.name,
+          role: 'admin'
+        };
+      } else if (targetOrg) {
+        targetOrg.members.push({
+          user: newUser._id,
+          role: 'member'
+        });
+        await targetOrg.save();
+
+        await User.findByIdAndUpdate(newUser._id, {
+          $set: { organization: targetOrg._id }
+        });
+
+        orgInfo = {
+          id: targetOrg._id,
+          name: targetOrg.name,
           role: 'member'
         };
       }
     }
 
-    res
-      .status(201)
-      .json({
-        token,
-        expiresIn: 3600,
-        user: {
-          _id: newUser._id,
-          email: newUser.email,
-          role: userRole,
-          organization: orgInfo
-        },
-        success: true,
-        message: 'User registered successfully'
-      });
+    const token = generateToken(newUser);
+
+    return res.status(201).json({
+      token,
+      expiresIn: 3600,
+      user: {
+        _id: newUser._id,
+        email: newUser.email,
+        role: shouldCreateOrg ? 'admin' : 'user',
+        organization: orgInfo
+      },
+      success: true,
+      message: 'User registered successfully'
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
+    return errorResponse(res, 500, error.message);
   }
 };
 
@@ -148,16 +114,23 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password').populate('organization', 'name');
-    if (!user) {
-      return errorResponse(res, 404, "User not found");
+    if (!email || !password) {
+      return errorResponse(res, 400, "Email and password are required");
     }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password').populate('organization', 'name');
+    if (!user) {
+      return errorResponse(res, 401, "Invalid email or password");
+    }
+
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return errorResponse(res, 401, "Invalid credentials");
+      return errorResponse(res, 401, "Invalid email or password");
     }
+
     const token = generateToken(user);
-    res.status(200).json({
+    return res.status(200).json({
       token,
       expiresIn: 3600,
       user: {
@@ -183,7 +156,17 @@ exports.logout = (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const currentUser = await User.findById(req.user._id);
+    let query = {};
+
+    if (currentUser.role !== 'super') {
+      if (!currentUser.organization) {
+        return errorResponse(res, 403, "User not associated with any organization");
+      }
+      query = { organization: currentUser.organization };
+    }
+
+    const users = await User.find(query).select('-password');
     successResponse(res, 200, "Users retrieved successfully", users);
   } catch (error) {
     errorResponse(res, 500, error.message);
@@ -197,7 +180,8 @@ exports.forgotPassword = async (req, res) => {
       return errorResponse(res, 400, "Email is required");
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       // Return success even if user not found to prevent email enumeration
       return successResponse(res, 200, "If an account with that email exists, a reset link has been sent");
@@ -210,7 +194,7 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save({ validateModifiedOnly: true });
 
-    await sendPasswordResetEmail(email, resetToken);
+    await sendPasswordResetEmail(normalizedEmail, resetToken);
 
     successResponse(res, 200, "If an account with that email exists, a reset link has been sent");
   } catch (error) {

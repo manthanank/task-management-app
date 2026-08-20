@@ -1,19 +1,33 @@
 const Organization = require('../models/organization.model');
+const User = require('../models/user.model');
 const { successResponse, errorResponse } = require('../utils/response');
 
 // Create a new organization
 exports.createOrganization = async (req, res) => {
   try {
     const { name, description } = req.body;
+    if (!name || !name.trim()) {
+      return errorResponse(res, 400, "Organization name is required");
+    }
+
+    const existingOrg = await Organization.findOne({ name: name.trim() });
+    if (existingOrg) {
+      return errorResponse(res, 400, "An organization with this name already exists");
+    }
 
     const newOrganization = new Organization({
-      name,
+      name: name.trim(),
       description,
       owner: req.user._id,
       members: [{ user: req.user._id, role: 'admin' }]
     });
 
     await newOrganization.save();
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $set: { organization: newOrganization._id, role: 'admin' }
+    });
+
     successResponse(res, 201, "Organization created successfully", newOrganization);
   } catch (error) {
     errorResponse(res, 500, error.message);
@@ -23,8 +37,8 @@ exports.createOrganization = async (req, res) => {
 // Get all organizations for current user
 exports.getMyOrganizations = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     const organizations = await Organization.find({
@@ -51,7 +65,6 @@ exports.getMyOrganizations = async (req, res) => {
 
 exports.getMyOrganization = async (req, res) => {
   try {
-    const User = require('../models/user.model');
     const user = await User.findById(req.user._id).populate('organization');
     if (!user || !user.organization) {
       return errorResponse(res, 404, "Organization not found");
@@ -73,14 +86,14 @@ exports.getOrganizationById = async (req, res) => {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    const user = req.currentUser;
-    if (user.role === 'super') {
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role === 'super') {
       return successResponse(res, 200, "Organization retrieved successfully", organization);
     }
 
-    // Check if user is a member of the organization
     const isMember = organization.members.some(member =>
-      member.user._id.toString() === req.user._id.toString()
+      member.user?._id?.toString() === req.user._id.toString() ||
+      member.user?.toString() === req.user._id.toString()
     );
 
     if (!isMember) {
@@ -104,21 +117,29 @@ exports.updateOrganization = async (req, res) => {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    // Check if user is the owner or admin
-    const memberRecord = organization.members.find(member =>
-      member.user.toString() === req.user._id.toString()
-    );
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super') {
+      const memberRecord = organization.members.find(member =>
+        member.user.toString() === req.user._id.toString()
+      );
 
-    if (!memberRecord || (memberRecord.role !== 'admin' &&
-        organization.owner.toString() !== req.user._id.toString())) {
-      return errorResponse(res, 403, "Not authorized to update organization");
+      if (!memberRecord || (memberRecord.role !== 'admin' &&
+          organization.owner.toString() !== req.user._id.toString())) {
+        return errorResponse(res, 403, "Not authorized to update organization");
+      }
     }
+
+    const updateFields = {};
+    if (name) updateFields.name = name.trim();
+    if (description !== undefined) updateFields.description = description;
 
     const updatedOrganization = await Organization.findByIdAndUpdate(
       req.params.id,
-      { name, description },
+      updateFields,
       { new: true }
-    );
+    )
+      .populate('owner', 'email')
+      .populate('members.user', 'email');
 
     successResponse(res, 200, "Organization updated successfully", updatedOrganization);
   } catch (error) {
@@ -130,24 +151,27 @@ exports.updateOrganization = async (req, res) => {
 exports.addMember = async (req, res) => {
   try {
     const { userId, role } = req.body;
+    if (!userId) {
+      return errorResponse(res, 400, "User ID is required");
+    }
 
     const organization = await Organization.findById(req.params.id);
-
     if (!organization) {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    // Check if user is the owner or admin
-    const memberRecord = organization.members.find(member =>
-      member.user.toString() === req.user._id.toString()
-    );
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super') {
+      const memberRecord = organization.members.find(member =>
+        member.user.toString() === req.user._id.toString()
+      );
 
-    if (!memberRecord || (memberRecord.role !== 'admin' &&
-        organization.owner.toString() !== req.user._id.toString())) {
-      return errorResponse(res, 403, "Not authorized to add members");
+      if (!memberRecord || (memberRecord.role !== 'admin' &&
+          organization.owner.toString() !== req.user._id.toString())) {
+        return errorResponse(res, 403, "Not authorized to add members");
+      }
     }
 
-    // Check if user is already a member
     const isAlreadyMember = organization.members.some(member =>
       member.user.toString() === userId
     );
@@ -162,8 +186,13 @@ exports.addMember = async (req, res) => {
     });
 
     await organization.save();
+    await User.findByIdAndUpdate(userId, { $set: { organization: organization._id } });
 
-    successResponse(res, 200, "Member added successfully", organization);
+    const populatedOrg = await Organization.findById(req.params.id)
+      .populate('owner', 'email')
+      .populate('members.user', 'email');
+
+    successResponse(res, 200, "Member added successfully", populatedOrg);
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -173,24 +202,27 @@ exports.addMember = async (req, res) => {
 exports.removeMember = async (req, res) => {
   try {
     const { userId } = req.body;
+    if (!userId) {
+      return errorResponse(res, 400, "User ID is required");
+    }
 
     const organization = await Organization.findById(req.params.id);
-
     if (!organization) {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    // Check if user is the owner or admin
-    const memberRecord = organization.members.find(member =>
-      member.user.toString() === req.user._id.toString()
-    );
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super') {
+      const memberRecord = organization.members.find(member =>
+        member.user.toString() === req.user._id.toString()
+      );
 
-    if (!memberRecord || (memberRecord.role !== 'admin' &&
-        organization.owner.toString() !== req.user._id.toString())) {
-      return errorResponse(res, 403, "Not authorized to remove members");
+      if (!memberRecord || (memberRecord.role !== 'admin' &&
+          organization.owner.toString() !== req.user._id.toString())) {
+        return errorResponse(res, 403, "Not authorized to remove members");
+      }
     }
 
-    // Cannot remove the owner
     if (organization.owner.toString() === userId) {
       return errorResponse(res, 400, "Cannot remove the organization owner");
     }
@@ -200,8 +232,13 @@ exports.removeMember = async (req, res) => {
     );
 
     await organization.save();
+    await User.findByIdAndUpdate(userId, { $unset: { organization: 1 } });
 
-    successResponse(res, 200, "Member removed successfully", organization);
+    const populatedOrg = await Organization.findById(req.params.id)
+      .populate('owner', 'email')
+      .populate('members.user', 'email');
+
+    successResponse(res, 200, "Member removed successfully", populatedOrg);
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -211,15 +248,19 @@ exports.removeMember = async (req, res) => {
 exports.deleteOrganization = async (req, res) => {
   try {
     const organization = await Organization.findById(req.params.id);
-
     if (!organization) {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    // Only owner can delete organization
-    if (organization.owner.toString() !== req.user._id.toString()) {
-      return errorResponse(res, 403, "Only the organization owner can delete it");
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super' && organization.owner.toString() !== req.user._id.toString()) {
+      return errorResponse(res, 403, "Only the organization owner or a super admin can delete it");
     }
+
+    await User.updateMany(
+      { organization: req.params.id },
+      { $unset: { organization: 1 } }
+    );
 
     await Organization.findByIdAndDelete(req.params.id);
 
@@ -229,11 +270,11 @@ exports.deleteOrganization = async (req, res) => {
   }
 };
 
-// Get all organizations (admin only)
+// Get all organizations (super/admin only)
 exports.getAllOrganizations = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     const organizations = await Organization.find()
@@ -264,12 +305,16 @@ exports.getOrganizationMembers = async (req, res) => {
       return errorResponse(res, 404, "Organization not found");
     }
 
-    const isMember = organization.members.some(member =>
-      member.user._id.toString() === req.user._id.toString()
-    );
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super') {
+      const isMember = organization.members.some(member =>
+        member.user?._id?.toString() === req.user._id.toString() ||
+        member.user?.toString() === req.user._id.toString()
+      );
 
-    if (!isMember) {
-      return errorResponse(res, 403, "Access denied");
+      if (!isMember) {
+        return errorResponse(res, 403, "Access denied");
+      }
     }
 
     successResponse(res, 200, "Organization members retrieved successfully", organization.members);
@@ -279,52 +324,5 @@ exports.getOrganizationMembers = async (req, res) => {
 };
 
 exports.addMemberToOrganization = async (req, res) => {
-  try {
-    const { userId, role = 'member' } = req.body;
-
-    if (!userId) {
-      return errorResponse(res, 400, "User ID is required");
-    }
-
-    const organization = await Organization.findById(req.params.id);
-
-    if (!organization) {
-      return errorResponse(res, 404, "Organization not found");
-    }
-
-    const currentUser = req.currentUser;
-
-    // Prevent cross-tenant addition unless super
-    if (currentUser.role !== 'super') {
-      const memberRecord = organization.members.find(member =>
-        member.user.toString() === req.user._id.toString()
-      );
-      if (!memberRecord || (memberRecord.role !== 'admin' && organization.owner.toString() !== req.user._id.toString())) {
-        return errorResponse(res, 403, "Not authorized to add members to this organization");
-      }
-    }
-
-    // Check if user is already a member
-    const isAlreadyMember = organization.members.some(member =>
-      member.user.toString() === userId
-    );
-
-    if (isAlreadyMember) {
-      return errorResponse(res, 400, "User is already a member of this organization");
-    }
-
-    organization.members.push({
-      user: userId,
-      role: role
-    });
-
-    await organization.save();
-
-    const updatedOrganization = await Organization.findById(req.params.id)
-      .populate('members.user', 'email');
-
-    successResponse(res, 200, "Member added successfully", updatedOrganization);
-  } catch (error) {
-    errorResponse(res, 500, error.message);
-  }
+  return exports.addMember(req, res);
 };

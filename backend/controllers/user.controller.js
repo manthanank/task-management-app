@@ -3,8 +3,8 @@ const { successResponse, errorResponse } = require("../utils/response");
 
 exports.getUsers = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     const currentUser = await User.findById(req.user._id);
@@ -17,7 +17,7 @@ exports.getUsers = async (req, res) => {
       query = { organization: currentUser.organization };
     }
 
-    const users = await User.find(query).skip(skip).limit(limit);
+    const users = await User.find(query).select('-password').skip(skip).limit(limit);
     const totalUsers = await User.countDocuments(query);
 
     return successResponse(res, 200, "Users retrieved successfully", {
@@ -34,8 +34,8 @@ exports.getUsers = async (req, res) => {
 // Get users by organization
 exports.getUsersByOrganization = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     // Get the current user's organization
@@ -54,24 +54,23 @@ exports.getUsersByOrganization = async (req, res) => {
 
     const totalUsers = await User.countDocuments({ organization: user.organization });
 
-    successResponse(res, 200, "Organization users retrieved successfully", {
+    return successResponse(res, 200, "Organization users retrieved successfully", {
       users,
       totalUsers,
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page
     });
   } catch (error) {
-    errorResponse(res, 500, error.message);
+    return errorResponse(res, 500, error.message);
   }
 };
 
 // Get current user's profile with organization info and org role
 exports.getProfile = async (req, res) => {
   try {
-    // Populate organization info
     const user = await User.findById(req.user._id)
       .select('-password')
-      .populate('organization', 'name _id'); // Add more fields if needed
+      .populate('organization', 'name _id');
 
     if (!user) {
       return errorResponse(res, 404, "User not found");
@@ -80,7 +79,6 @@ exports.getProfile = async (req, res) => {
     let organizationRole = null;
     let joinedAt = null;
 
-    // If user has an organization, find their role and join date from org.members
     if (user.organization) {
       const Organization = require("../models/organization.model");
       const org = await Organization.findById(user.organization._id);
@@ -95,13 +93,10 @@ exports.getProfile = async (req, res) => {
       }
     }
 
-    // Build profile response
     const profile = {
       _id: user._id,
-      name: user.name,
       email: user.email,
       role: user.role,
-      createdAt: user.createdAt,
       organization: user.organization,
       organizationRole,
       joinedAt,
@@ -115,10 +110,18 @@ exports.getProfile = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select('-password');
     if (!user) {
       return errorResponse(res, 404, "User not found");
     }
+
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.role !== 'super' && req.user._id.toString() !== req.params.id) {
+      if (!currentUser.organization || !user.organization || user.organization.toString() !== currentUser.organization.toString()) {
+        return errorResponse(res, 403, "Not authorized to view this user");
+      }
+    }
+
     return successResponse(res, 200, "User retrieved successfully", user);
   } catch (error) {
     return errorResponse(res, 500, error.message);
@@ -139,22 +142,30 @@ exports.updateUser = async (req, res) => {
     
     if (req.user._id.toString() !== id) {
       if (currentUser.role !== 'super') {
-        if (currentUser.role !== 'admin' || !currentUser.organization || user.organization?.toString() !== currentUser.organization.toString()) {
+        if (currentUser.role !== 'admin' || !currentUser.organization || !user.organization || user.organization.toString() !== currentUser.organization.toString()) {
           return errorResponse(res, 403, "Not authorized to update this user");
         }
       }
     }
     
     const updateData = {};
-    if (email) updateData.email = email;
+    if (email) {
+      updateData.email = email.toLowerCase().trim();
+    }
     
     if (role && (currentUser.role === 'admin' || currentUser.role === 'super') && req.user._id.toString() !== id) {
+      if (role === 'super' && currentUser.role !== 'super') {
+        return errorResponse(res, 403, "Only super administrators can assign the super role");
+      }
+      if (!['user', 'admin', 'super'].includes(role)) {
+        return errorResponse(res, 400, "Invalid role specified");
+      }
       updateData.role = role;
     }
     
     const updatedUser = await User.findByIdAndUpdate(
       id, updateData, { new: true, runValidators: true }
-    );
+    ).select('-password');
     
     return successResponse(res, 200, "User updated successfully", updatedUser);
   } catch (error) {
@@ -180,7 +191,7 @@ exports.deleteUser = async (req, res) => {
 
     const currentUser = await User.findById(req.user._id);
     if (currentUser.role !== 'super') {
-      if (currentUser.role !== 'admin' || !currentUser.organization || user.organization?.toString() !== currentUser.organization.toString()) {
+      if (currentUser.role !== 'admin' || !currentUser.organization || !user.organization || user.organization.toString() !== currentUser.organization.toString()) {
         return errorResponse(res, 403, "Not authorized to delete this user");
       }
     }

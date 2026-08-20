@@ -43,7 +43,7 @@ exports.createTask = async (req, res) => {
       organization: assignedUser.organization
     }).save();
 
-    successResponse(res, 201, "Task created successfully");
+    successResponse(res, 201, "Task created successfully", newTask);
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -52,8 +52,8 @@ exports.createTask = async (req, res) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     const user = req.currentUser;
@@ -65,6 +65,7 @@ exports.getAllTasks = async (req, res) => {
       organization: user.organization
     })
     .populate('user', 'email')
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
@@ -84,12 +85,14 @@ exports.getAllTasks = async (req, res) => {
 // Get ongoing tasks
 exports.getOngoingTasks = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
     const priority = req.query.priority || "";
-    const sortBy = req.query.sortBy || "deadline";
+    
+    const allowedSortFields = ['deadline', 'createdAt', 'title', 'priority', 'completed'];
+    const sortBy = allowedSortFields.includes(req.query.sortBy) ? req.query.sortBy : "deadline";
     const order = req.query.order === "desc" ? -1 : 1;
 
     const user = req.currentUser;
@@ -114,15 +117,14 @@ exports.getOngoingTasks = async (req, res) => {
       filter.priority = priority;
     }
 
-    // Build sort object
     const sort = {};
     sort[sortBy] = order;
 
     const tasks = await Task.find(filter)
-    .populate('user', 'email')
-    .sort(sort)
-    .skip(skip)
-    .limit(limit);
+      .populate('user', 'email')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
     
     const totalTasks = await Task.countDocuments(filter);
 
@@ -140,8 +142,8 @@ exports.getOngoingTasks = async (req, res) => {
 // Get completed tasks
 exports.getCompletedTasks = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
     const priority = req.query.priority || "";
@@ -169,14 +171,13 @@ exports.getCompletedTasks = async (req, res) => {
     }
 
     const tasks = await Task.find(filter)
-      .sort({ updatedAt: -1 })  // Sort by most recently updated first
+      .sort({ updatedAt: -1 })
       .populate('user', 'email')
       .skip(skip)
       .limit(limit);
       
     const totalTasks = await Task.countDocuments(filter);
 
-    // Ensure we're sending back the proper metadata
     successResponse(res, 200, "Completed tasks retrieved successfully", {
       tasks,
       totalTasks,
@@ -191,11 +192,12 @@ exports.getCompletedTasks = async (req, res) => {
 // Get all tasks for a user
 exports.getAllTasksForUser = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
     const skip = (page - 1) * limit;
 
     const tasks = await Task.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
     const totalTasks = await Task.countDocuments({ user: req.user._id });
@@ -257,20 +259,35 @@ exports.updateTask = async (req, res) => {
     let action = "updated";
     let details = "Task details updated";
 
-    if (req.body.completed !== undefined && req.body.completed !== task.completed) {
-      action = "status_changed";
-      details = req.body.completed ? "Task marked as completed" : "Task marked as ongoing";
-    } else if (req.body.subtasks) {
-      action = "subtask_toggled";
-      details = "Checklist updated";
-    }
-
     const allowedFields = ['title', 'description', 'deadline', 'priority', 'completed', 'subtasks'];
     const updateData = {};
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) {
         updateData[key] = req.body[key];
       }
+    }
+
+    // Handle task reassignment
+    const targetUserId = req.body.userId || req.body.user;
+    if (targetUserId && targetUserId.toString() !== task.user.toString()) {
+      const assignedUser = await User.findById(targetUserId);
+      if (!assignedUser) {
+        return errorResponse(res, 404, "Assigned user not found");
+      }
+      if (currentUser.role !== 'super') {
+        if (!currentUser.organization || !assignedUser.organization || assignedUser.organization.toString() !== currentUser.organization.toString()) {
+          return errorResponse(res, 403, "Cannot assign tasks to users outside your organization");
+        }
+      }
+      updateData.user = targetUserId;
+      action = "reassigned";
+      details = `Task reassigned to ${assignedUser.email}`;
+    } else if (req.body.completed !== undefined && req.body.completed !== task.completed) {
+      action = "status_changed";
+      details = req.body.completed ? "Task marked as completed" : "Task marked as ongoing";
+    } else if (Array.isArray(req.body.subtasks)) {
+      action = "subtask_toggled";
+      details = "Checklist updated";
     }
 
     const updatedTask = await Task.findByIdAndUpdate(
@@ -298,9 +315,7 @@ exports.deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Find the task first to ensure it exists
     const task = await Task.findById(id);
-    
     if (!task) {
       return errorResponse(res, 404, "Task not found");
     }
@@ -314,7 +329,6 @@ exports.deleteTask = async (req, res) => {
       }
     }
     
-    // Log activity
     await new Activity({
       task: id,
       user: req.user._id,
@@ -323,7 +337,6 @@ exports.deleteTask = async (req, res) => {
       organization: task.organization
     }).save();
 
-    // Delete the task
     await Task.findByIdAndDelete(id);
     
     successResponse(res, 200, "Task deleted successfully");

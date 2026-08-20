@@ -9,7 +9,9 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401) {
+      // Don't auto-redirect on login or register 401 errors so form validation/messages display correctly
+      const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+      if (error.status === 401 && !isAuthEndpoint) {
         authService.logout();
         router.navigate(['/login']);
       }
