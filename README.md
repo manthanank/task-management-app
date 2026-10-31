@@ -1,12 +1,19 @@
 # Task Management App
 
-A full-stack task management application built with Angular 19, Node.js, Express.js, and MongoDB. Features organization-based multi-tenancy, role-based access control (user/admin/super), task assignment and tracking, and responsive design with Tailwind CSS.
+A full-stack task manager with organizations, roles and task assignment, built with Angular, Express and MongoDB.
+
+**Live demo:** https://task-management-app-manthanank.vercel.app/
+
+![Task Management App screenshot](docs/screenshot.png)
+
+The app supports organization-based multi-tenancy, role-based access control (user/admin/super), task assignment and tracking, optional Gemini-powered task helpers, and a responsive Tailwind CSS interface.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Technologies Used](#technologies-used)
 - [Prerequisites](#prerequisites)
+- [Run locally](#run-locally)
 - [Installation](#installation)
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
@@ -23,11 +30,16 @@ A full-stack task management application built with Angular 19, Node.js, Express
 - Subtask/checklist support
 - Activity log per task
 - Dashboard with task statistics
+- Password reset by email (SMTP)
+- Gemini helpers: suggest subtasks, improve descriptions, suggest priority, summarize tasks, and an assistant chat
+- Light and dark themes
+- Swagger API docs at `/api-docs`
 - Responsive design using Tailwind CSS
 
 ## Technologies Used
 
 - **Backend**: Node.js, Express.js, MongoDB, Mongoose, JWT, bcryptjs, Helmet, express-rate-limit, Swagger
+- **AI**: Google Gemini (`@google/genai`)
 - **Frontend**: Angular 19, Tailwind CSS, RxJS
 - **Authentication**: JSON Web Tokens (JWT)
 
@@ -36,6 +48,24 @@ A full-stack task management application built with Angular 19, Node.js, Express
 - Node.js (v18.x or later)
 - Angular CLI (v19.x or later)
 - MongoDB (local or Atlas instance)
+
+## Run locally
+
+```sh
+git clone https://github.com/manthanank/task-management-app.git
+cd task-management-app
+
+# API (needs MongoDB; copy backend/.env.example to backend/.env and fill it in)
+cd backend
+npm install
+npm start
+
+# Frontend, in a second terminal from the repo root
+npm install
+npm start
+```
+
+Open http://localhost:4200. The frontend talks to the API at http://localhost:3000/api when running on localhost. `GEMINI_API_KEY` and the SMTP settings are only needed for the AI helpers and password reset emails.
 
 ## Installation
 
@@ -54,7 +84,7 @@ A full-stack task management application built with Angular 19, Node.js, Express
     npm install
     ```
 
-3. Create a `.env` file in the `backend` directory (see `.env.example`):
+3. Create a `.env` file in the `backend` directory. `.env.example` lists every variable, including the optional SMTP and Gemini settings:
 
     ```bash
     PORT=3000
